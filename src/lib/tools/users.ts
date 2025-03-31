@@ -59,7 +59,7 @@ const createOrUpdateUser = KnockTool({
   execute: (knockClient, config) => async (params) => {
     const publicClient = await knockClient.publicApi();
 
-    return await publicClient.users.identify(params.userId, {
+    return await publicClient.users.identify(params.userId ?? config.userId, {
       email: params.email,
       name: params.name,
       phone_number: params.phoneNumber,

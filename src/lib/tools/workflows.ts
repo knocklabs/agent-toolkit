@@ -50,13 +50,17 @@ const triggerWorkflow = KnockTool({
       .describe("(string): The key of the workflow to trigger."),
     recipients: z
       .array(z.string())
-      .describe("(array): The recipients to trigger the workflow for."),
+      .optional()
+      .describe(
+        "(array): The recipients to trigger the workflow for. This is an array of user IDs."
+      ),
     data: z
       .record(z.string(), z.any())
       .optional()
       .describe("(object): Data to pass to the workflow."),
     tenant: z
       .record(z.string(), z.any())
+      .optional()
       .describe(
         "(object): The tenant to trigger the workflow for. Must contain an id if being sent."
       ),
@@ -65,9 +69,9 @@ const triggerWorkflow = KnockTool({
     const publicClient = await knockClient.publicApi();
 
     const result = await publicClient.workflows.trigger(params.workflowKey, {
-      recipients: params.recipients,
+      recipients: params.recipients ?? [config.userId] ?? [],
       data: params.data,
-      tenant: params.tenant,
+      tenant: params.tenant ?? config.tenantId,
     });
 
     return result.workflow_run_id;

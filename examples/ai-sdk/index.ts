@@ -10,18 +10,19 @@ const toolkit = createKnockToolkit({
   permissions: {
     users: { manage: true },
   },
+  userId: "alan-grant",
 });
 
 (async () => {
   const result = await generateText({
     model: openai("gpt-4o"),
     tools: {
-      ...toolkit.getAllTools(),
+      ...toolkit.getTools("users"),
     },
     maxSteps: 5,
     prompt:
-      "Create a new user that's a character from Jurassic Park. Fill out the user's profile with relevant information about the character.",
+      "Update the current user's profile with information about them, knowing that they are Alan Grant from Jurassic Park. Include custom properties about their favorite dinosaur.",
   });
 
-  console.log(result.text);
+  console.log(result);
 })();
