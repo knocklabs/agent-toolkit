@@ -1,0 +1,237 @@
+import { z } from "zod";
+import { KnockTool } from "../knock-tool.js";
+
+const getUser = KnockTool({
+  method: "get_user",
+  name: "Get user",
+  description: `
+   Retrieves the complete user object for the given userId, including email, name, phone number, and any custom properties. Use this tool when you need to retrieve a user's complete profile.
+
+   If the userId is not provided, it will use the userId from the config.
+   `,
+  parameters: z.object({
+    userId: z
+      .string()
+      .describe("(string): The userId of the User to retrieve."),
+  }),
+  execute: (knockClient, config) => async (params) => {
+    const publicClient = await knockClient.publicApi();
+
+    return await publicClient.users.get(params.userId ?? config.userId);
+  },
+});
+
+const createOrUpdateUser = KnockTool({
+  method: "create_or_update_user",
+  name: "Create or update user",
+  description: `
+  Creates a new user if they don't exist, or updates the user object for the given userId, including email, name, phone number, and any custom properties.
+  
+  Use this tool when you need to update a user's profile.
+
+  If the userId is not provided, it will use the userId from the config.
+  `,
+  parameters: z.object({
+    userId: z.string().describe("(string): The userId of the User to update."),
+    email: z.string().describe("(string): The email of the User to update."),
+    name: z.string().describe("(string): The name of the User to update."),
+    phoneNumber: z
+      .string()
+      .describe("(string): The phone number of the User to update."),
+    customProperties: z
+      .record(z.string(), z.any())
+      .describe(
+        "(object): A dictionary of custom properties to update for the User."
+      ),
+  }),
+  execute: (knockClient, config) => async (params) => {
+    const publicClient = await knockClient.publicApi();
+
+    return await publicClient.users.identify(params.userId, {
+      email: params.email,
+      name: params.name,
+      phone_number: params.phoneNumber,
+      ...(params.customProperties ?? {}),
+    });
+  },
+});
+
+const deleteUser = KnockTool({
+  method: "delete_user",
+  name: "Delete user",
+  description: `
+  Deletes a user. Use this tool when you've been asked to remove a user from the system.
+  `,
+  parameters: z.object({
+    userId: z.string().describe("(string): The userId of the User to delete."),
+  }),
+  execute: (knockClient, config) => async (params) => {
+    const publicClient = await knockClient.publicApi();
+    await publicClient.users.delete(params.userId);
+    return { success: true };
+  },
+});
+
+const getUserPreferences = KnockTool({
+  method: "get_user_preferences",
+  name: "Get user preferences",
+  description: `
+  Retrieves the user's notification preferences for the given userId.
+
+  If the userId is not provided, it will use the userId from the config. 
+  `,
+  parameters: z.object({
+    userId: z
+      .string()
+      .describe(
+        "(string): The userId of the User to retrieve Preferences for."
+      ),
+    preferenceSetId: z
+      .string()
+      .describe(
+        "(string): The preferenceSetId of the User to retrieve preferences for. Defaults to `default`."
+      ),
+  }),
+  execute: (knockClient, config) => async (params) => {
+    const publicClient = await knockClient.publicApi();
+
+    return await publicClient.users.getPreferences(
+      params.userId ?? config.userId,
+      {
+        preferenceSet: params.preferenceSetId ?? "default",
+      }
+    );
+  },
+});
+
+const setUserPreferences = KnockTool({
+  method: "set_user_preferences",
+  name: "Set user preferences",
+  description: `
+  Overwrites the user's notification preferences for the given userId. Allows setting per-workflow, per-category, or per-channel notification preferences. Use this tool when you are asked to update a user's notification preferences.
+
+  If the userId is not provided, it will use the userId from the config.
+
+  Instructions:
+
+  - You must ALWAYS provide a full preference set to this tool.
+  - When setting per-workflow preferences, the key in the object should be the workflow key.
+  - Workflow and category preferences should always have channel types underneath.
+  - The channel types available to you are: email, sms, push, chat, and in_app_feed.
+  - To turn OFF a preference, you must set it to false.
+  - To turn ON a preference, you must set it to true.
+
+  <examples>
+    <example>
+      <description>
+        Update the user's preferences to turn off email notifications for the "welcome" workflow.
+      </description>
+      <input>
+        {
+          "workflows": {
+            "welcome": {
+              "channel_types": {
+                "email": false
+              }
+            }
+          }
+        }
+    </example>
+  </examples>
+  `,
+  parameters: z.object({
+    userId: z
+      .string()
+      .describe("(string): The userId of the User to update preferences for."),
+    workflows: z
+      .record(z.string(), z.any())
+      .describe(
+        "(object): The workflows to update where the key is the workflow key, and the value of the object is an object that contains a `channel_types` key with a boolean value for each channel type."
+      ),
+    categories: z
+      .record(z.string(), z.any())
+      .describe(
+        "(object): The categories to update where the key is the category key, and the value of the object is an object that contains a `channel_types` key with a boolean value for each channel type."
+      ),
+    channel_types: z
+      .record(z.string(), z.boolean())
+      .describe(
+        "(object): The channel types to update where the key is the channel type, and the value of the object is a boolean value."
+      ),
+  }),
+  execute: (knockClient, config) => async (params) => {
+    const publicClient = await knockClient.publicApi();
+
+    const existingPreferences = await publicClient.users.getPreferences(
+      params.userId ?? config.userId,
+      {
+        preferenceSet: "default",
+      }
+    );
+
+    const updatedPreferences = {
+      ...existingPreferences,
+      workflows: {
+        ...existingPreferences.workflows,
+        ...params.workflows,
+      },
+      categories: {
+        ...existingPreferences.categories,
+        ...params.categories,
+      },
+      channel_types: {
+        ...existingPreferences.channel_types,
+        ...params.channel_types,
+      },
+    };
+
+    return await publicClient.users.setPreferences(
+      params.userId ?? config.userId,
+      updatedPreferences
+    );
+  },
+});
+
+const getUserMessages = KnockTool({
+  method: "get_user_messages",
+  name: "Get user messages",
+  description: `
+  Retrieves the messages that this user has received from the service. Use this tool when you need information about the notifications that the user has received, including if the message has been read, seen, or interacted with. This will return a list of messages across all of the channels.
+
+  If the userId is not provided, it will use the userId from the config.
+  `,
+  parameters: z.object({
+    userId: z
+      .string()
+      .describe("(string): The userId of the User to retrieve messages for."),
+    workflowRunId: z
+      .string()
+      .describe(
+        "(string): The workflowRunId of the User to retrieve. Use this when you want to retrieve messages sent from a workflow trigger."
+      ),
+  }),
+  execute: (knockClient, config) => async (params) => {
+    const publicClient = await knockClient.publicApi();
+
+    return await publicClient.users.getMessages(
+      params.userId ?? config.userId,
+      {
+        workflow_run_id: params.workflowRunId,
+      }
+    );
+  },
+});
+
+export const users = {
+  getUser,
+  deleteUser,
+  createOrUpdateUser,
+  getUserPreferences,
+  setUserPreferences,
+  getUserMessages,
+};
+
+export const permissions = {
+  read: ["getUser", "getUserPreferences", "getUserMessages"],
+  manage: ["createOrUpdateUser", "deleteUser", "setUserPreferences"],
+};
