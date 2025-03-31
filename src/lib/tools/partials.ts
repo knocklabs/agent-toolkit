@@ -11,6 +11,7 @@ const listPartials = KnockTool({
   parameters: z.object({
     environment: z
       .string()
+      .optional()
       .describe(
         "(string): The environment to list partials for. Defaults to `development`."
       ),

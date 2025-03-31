@@ -49,6 +49,7 @@ const createOrUpdateObject = KnockTool({
       .describe("(string): The ID of the object to create or update."),
     properties: z
       .record(z.string(), z.any())
+      .optional()
       .describe("(object): The properties to set on the object."),
   }),
   execute: (knockClient, config) => async (params) => {

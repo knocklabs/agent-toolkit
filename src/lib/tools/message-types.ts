@@ -10,6 +10,7 @@ const listMessageTypes = KnockTool({
   parameters: z.object({
     environment: z
       .string()
+      .optional()
       .describe(
         "(string): The environment to list message types for. Defaults to `development`."
       ),
@@ -141,6 +142,12 @@ const createOrUpdateMessageType = KnockTool({
   </example>
   `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to create or update the message type in. Defaults to `development`."
+      ),
     messageTypeKey: z
       .string()
       .describe("(string): The key of the message type to create or update."),

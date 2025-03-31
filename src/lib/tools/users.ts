@@ -12,6 +12,7 @@ const getUser = KnockTool({
   parameters: z.object({
     userId: z
       .string()
+      .optional()
       .describe("(string): The userId of the User to retrieve."),
   }),
   execute: (knockClient, config) => async (params) => {
@@ -32,14 +33,25 @@ const createOrUpdateUser = KnockTool({
   If the userId is not provided, it will use the userId from the config.
   `,
   parameters: z.object({
-    userId: z.string().describe("(string): The userId of the User to update."),
-    email: z.string().describe("(string): The email of the User to update."),
-    name: z.string().describe("(string): The name of the User to update."),
+    userId: z
+      .string()
+      .optional()
+      .describe("(string): The userId of the User to update."),
+    email: z
+      .string()
+      .optional()
+      .describe("(string): The email of the User to update."),
+    name: z
+      .string()
+      .optional()
+      .describe("(string): The name of the User to update."),
     phoneNumber: z
       .string()
+      .optional()
       .describe("(string): The phone number of the User to update."),
     customProperties: z
       .record(z.string(), z.any())
+      .optional()
       .describe(
         "(object): A dictionary of custom properties to update for the User."
       ),
@@ -63,11 +75,14 @@ const deleteUser = KnockTool({
   Deletes a user. Use this tool when you've been asked to remove a user from the system.
   `,
   parameters: z.object({
-    userId: z.string().describe("(string): The userId of the User to delete."),
+    userId: z
+      .string()
+      .optional()
+      .describe("(string): The userId of the User to delete."),
   }),
   execute: (knockClient, config) => async (params) => {
     const publicClient = await knockClient.publicApi();
-    await publicClient.users.delete(params.userId);
+    await publicClient.users.delete(params.userId ?? config.userId);
     return { success: true };
   },
 });
@@ -83,11 +98,13 @@ const getUserPreferences = KnockTool({
   parameters: z.object({
     userId: z
       .string()
+      .optional()
       .describe(
         "(string): The userId of the User to retrieve Preferences for."
       ),
     preferenceSetId: z
       .string()
+      .optional()
       .describe(
         "(string): The preferenceSetId of the User to retrieve preferences for. Defaults to `default`."
       ),
@@ -142,19 +159,23 @@ const setUserPreferences = KnockTool({
   parameters: z.object({
     userId: z
       .string()
+      .optional()
       .describe("(string): The userId of the User to update preferences for."),
     workflows: z
       .record(z.string(), z.any())
+      .optional()
       .describe(
         "(object): The workflows to update where the key is the workflow key, and the value of the object is an object that contains a `channel_types` key with a boolean value for each channel type."
       ),
     categories: z
       .record(z.string(), z.any())
+      .optional()
       .describe(
         "(object): The categories to update where the key is the category key, and the value of the object is an object that contains a `channel_types` key with a boolean value for each channel type."
       ),
     channel_types: z
       .record(z.string(), z.boolean())
+      .optional()
       .describe(
         "(object): The channel types to update where the key is the channel type, and the value of the object is a boolean value."
       ),
@@ -203,9 +224,11 @@ const getUserMessages = KnockTool({
   parameters: z.object({
     userId: z
       .string()
+      .optional()
       .describe("(string): The userId of the User to retrieve messages for."),
     workflowRunId: z
       .string()
+      .optional()
       .describe(
         "(string): The workflowRunId of the User to retrieve. Use this when you want to retrieve messages sent from a workflow trigger."
       ),

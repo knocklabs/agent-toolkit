@@ -10,6 +10,7 @@ const listCommits = KnockTool({
   parameters: z.object({
     environment: z
       .string()
+      .optional()
       .describe(
         "(string): The environment to list commits for. Defaults to `development`."
       ),
@@ -36,6 +37,7 @@ const commitAllChanges = KnockTool({
   parameters: z.object({
     message: z
       .string()
+      .optional()
       .describe("(string): The message to include in the commit."),
   }),
   execute: (knockClient, config) => async (params) => {
@@ -50,9 +52,7 @@ const promoteAllCommits = KnockTool({
   method: "promote_all_commits",
   name: "Promote all commits",
   description: `
-  Promote all commits to the next environment. Use this tool when you are asked to deploy all changes. 
-
-  When not specified, the \`toEnvironment\` will default to the environment that comes after the environment specified in the config.
+  Promote all commits to the next environment. Use this tool when you are asked to deploy all changes.
   `,
   parameters: z.object({
     toEnvironment: z

@@ -16,6 +16,7 @@ const listWorkflows = KnockTool({
   parameters: z.object({
     environment: z
       .string()
+      .optional()
       .describe(
         "(string): The environment to list workflows for. Defaults to `development`."
       ),
@@ -52,6 +53,7 @@ const triggerWorkflow = KnockTool({
       .describe("(array): The recipients to trigger the workflow for."),
     data: z
       .record(z.string(), z.any())
+      .optional()
       .describe("(object): Data to pass to the workflow."),
     tenant: z
       .record(z.string(), z.any())
@@ -99,6 +101,7 @@ const createEmailWorkflow = KnockTool({
   parameters: z.object({
     environment: z
       .string()
+      .optional()
       .describe(
         "(string): The environment to create the workflow in. Defaults to `development`."
       ),
@@ -106,6 +109,7 @@ const createEmailWorkflow = KnockTool({
     name: z.string().describe("(string): The name of the workflow."),
     categories: z
       .array(z.string())
+      .optional()
       .describe("(array): The categories to add to the workflow."),
     subject: z.string().describe("(string): The subject of the email."),
     body: z.string().describe("(string): The body of the email."),
@@ -186,6 +190,7 @@ const createOneOffWorkflowSchedule = KnockTool({
       ),
     data: z
       .record(z.string(), z.any())
+      .optional()
       .describe("(object): Data to pass to the workflow."),
   }),
   execute: (knockClient, config) => async (params) => {
@@ -209,5 +214,5 @@ export const workflows = {
 export const permissions = {
   read: ["listWorkflows"],
   manage: ["createEmailWorkflow", "createOneOffWorkflowSchedule"],
-  trigger: ["triggerWorkflow"],
+  run: ["triggerWorkflow"],
 };

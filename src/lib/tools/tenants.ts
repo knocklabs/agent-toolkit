@@ -30,9 +30,10 @@ const setTenant = KnockTool({
   `,
   parameters: z.object({
     tenantId: z.string().describe("(string): The ID of the tenant to update."),
-    name: z.string().describe("(string): The name of the tenant."),
+    name: z.string().optional().describe("(string): The name of the tenant."),
     properties: z
       .record(z.string(), z.any())
+      .optional()
       .describe("(object): The properties to set on the tenant."),
   }),
   execute: (knockClient) => async (params) => {

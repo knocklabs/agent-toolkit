@@ -95,7 +95,7 @@ export async function POST(req: Request) {
   const toolkit = await createKnockToolkit({
     serviceToken: "kst_12345",
     permissions: {
-      workflows: { read: true, trigger: true, manage: true },
+      workflows: { read: true, run: true, manage: true },
     },
   });
 
@@ -136,7 +136,7 @@ const toolkit = await createKnockToolkit({
   serviceToken: "kst_12345",
   permissions: {
     // Set the permissions of the tools to expose
-    workflows: { read: true, trigger: true, manage: true },
+    workflows: { read: true, run: true, manage: true },
   },
 });
 
