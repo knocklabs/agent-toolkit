@@ -16,7 +16,6 @@ export default defineConfig((overrideOptions) => {
     clean: true,
     bundle: true,
     sourcemap: true,
-    splitting: false,
     format: "esm",
     define: {
       PACKAGE_NAME: `"${name}"`,

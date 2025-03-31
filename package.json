@@ -1,6 +1,6 @@
 {
   "name": "@knocklabs/agent-toolkit",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A toolkit for working with Knock in Agent workflows.",
   "main": "src/index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "clean": "rimraf ./dist",
     "dev": "tsup --watch",
     "lint": "eslint src",
-    "release": "npm run build && npm run release:publish && npm changeset tag",
+    "release": "npm run build && npm run release:publish && changeset tag",
     "release:publish": "npm publish --access public --tolerate-republish"
   },
   "author": "Knock",
@@ -30,7 +30,7 @@
     }
   },
   "bin": {
-    "local-mcp": "./dist/modelcontextprotocol/local-server.js"
+    "local-mcp": "dist/modelcontextprotocol/local-server.js"
   },
   "files": [
     "dist"
