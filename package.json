@@ -8,7 +8,8 @@
     "clean": "rimraf ./dist",
     "dev": "tsup --watch",
     "lint": "eslint src",
-    "release": "npm run build && changeset publish"
+    "release": "npm run build && npm run release:publish && npm changeset tag",
+    "release:publish": "npm publish --access public --tolerate-republish"
   },
   "author": "Knock",
   "license": "MIT",
