@@ -6,13 +6,13 @@ import { KnockClient } from "../lib/knock-client.js";
 
 export class KnockMcpServer extends McpServer {
   constructor(knockClient: KnockClient, config: Config, tools: KnockTool[]) {
-    super({ name: "Knock", version: "0.1.0" });
+    super({ name: "Knock", version: PACKAGE_VERSION });
 
     tools.forEach((tool) => {
       const toolParams = tool.parameters ?? z.object({});
 
       this.tool(
-        tool.name,
+        tool.method,
         tool.description,
         toolParams.shape,
         async (arg: unknown) => {
