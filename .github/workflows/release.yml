@@ -35,7 +35,7 @@ jobs:
           commit: "chore: version packages"
           title: "chore: version packages"
           version: npx changeset version
-          publish: npm run release:publish
+          publish: npm run release
         env:
           GITHUB_TOKEN: ${{ secrets.KNOCK_ENG_BOT_GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
