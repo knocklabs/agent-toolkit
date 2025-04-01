@@ -10,6 +10,7 @@ const listMessageTypes = KnockTool({
   parameters: z.object({
     environment: z
       .string()
+      .optional()
       .describe(
         "(string): The environment to list message types for. Defaults to `development`."
       ),
@@ -103,25 +104,8 @@ const createOrUpdateMessageType = KnockTool({
                     "value": "warning",
                     "label": "Warning",
                   },
-                  {
-                    "value": "success",
-                    "label": "Success",
-                  },
-                  {
-                    "value": "info",
-                    "label": "Info",
-                  },
-                  {
-                    "value": "error",
-                    "label": "Error",
-                  },
                 ]
               },
-            },
-            {
-              "key": "title",
-              "type": "text",
-              "label": "Title",
             },
             {
               "key": "description",
@@ -141,6 +125,12 @@ const createOrUpdateMessageType = KnockTool({
   </example>
   `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to create or update the message type in. Defaults to `development`."
+      ),
     messageTypeKey: z
       .string()
       .describe("(string): The key of the message type to create or update."),
@@ -171,11 +161,12 @@ const createOrUpdateMessageType = KnockTool({
                 type: z
                   .string()
                   .describe(
-                    "(string): The type of the field. One of `text`, `textarea`, `button`, `markdown`, `select`, `multi_select`."
+                    "(string): The type of the field. One of `text`, `textarea`, `button`, `markdown`, `select`, `multi_select`, `image`."
                   ),
                 label: z.string().describe("(string): The label of the field."),
                 settings: z
                   .object({})
+                  .optional()
                   .describe("(object): The settings of the field."),
               })
             )

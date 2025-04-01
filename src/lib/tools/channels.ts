@@ -5,7 +5,7 @@ const listChannels = KnockTool({
   method: "list_channels",
   name: "List channels",
   description: `
-  Returns a list of all of the channels configured in the account. Each channel returns information about the type of channel it is (email, sms, push, etc), and the provider that's used to power the channel.
+  Returns a list of all of the channels configured in the account. Each channel returns information about the type of channel it is (email, sms, push, etc), and the provider that's used to power the channel. Channels can be used across all environments.
 
   Use this tool when you need to know about the channels configured in the Knock account, like when configuring a workflow.
   `,

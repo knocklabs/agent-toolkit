@@ -10,6 +10,7 @@ const listCommits = KnockTool({
   parameters: z.object({
     environment: z
       .string()
+      .optional()
       .describe(
         "(string): The environment to list commits for. Defaults to `development`."
       ),
@@ -31,16 +32,23 @@ const commitAllChanges = KnockTool({
   method: "commit_all_changes",
   name: "Commit all changes",
   description: `
-  Commit all pending changes to the current environment. Use this tool when you are asked to save all changes to the current environment. This can only be used in the development environment.
+  Commit all pending changes. This can only be used in the development environment.
   `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to commit all changes to. Defaults to `development`."
+      ),
     message: z
       .string()
+      .optional()
       .describe("(string): The message to include in the commit."),
   }),
   execute: (knockClient, config) => async (params) => {
     return await knockClient.commits.commitAll({
-      environment: config.environment ?? "development",
+      environment: params.environment ?? config.environment ?? "development",
       commit_message: params.message,
     });
   },
@@ -50,9 +58,7 @@ const promoteAllCommits = KnockTool({
   method: "promote_all_commits",
   name: "Promote all commits",
   description: `
-  Promote all commits to the next environment. Use this tool when you are asked to deploy all changes. 
-
-  When not specified, the \`toEnvironment\` will default to the environment that comes after the environment specified in the config.
+  Promote all commits to the next environment. Use this tool when you are asked to deploy all changes.
   `,
   parameters: z.object({
     toEnvironment: z

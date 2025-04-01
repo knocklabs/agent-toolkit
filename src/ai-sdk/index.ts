@@ -1,8 +1,7 @@
-import { ToolkitConfig } from "../types.js";
-import { toolPermissions } from "../lib/tools/index.js";
+import { ToolCategory, ToolkitConfig } from "../types.js";
 import { getToolsByPermissionsInCategories } from "../lib/utils.js";
 import { createKnockClient } from "../lib/knock-client.js";
-import { Tool } from "ai";
+import { ToolSet } from "ai";
 import { knockToolToAiTool } from "./tool-converter.js";
 
 const createKnockToolkit = (config: ToolkitConfig) => {
@@ -14,20 +13,32 @@ const createKnockToolkit = (config: ToolkitConfig) => {
      * Get all tools for all categories
      * @returns An array of all tools
      */
-    getAllTools: (): Tool[] =>
-      Object.values(allowedToolsByCategory)
+    getAllTools: (): ToolSet => {
+      return Object.values(allowedToolsByCategory)
         .flat()
-        .map((t) => knockToolToAiTool(knockClient, config, t)),
+        .reduce(
+          (acc, tool) => ({
+            ...acc,
+            [tool.method]: knockToolToAiTool(knockClient, config, tool),
+          }),
+          {} as ToolSet
+        );
+    },
 
     /**
      * Get all tools for a specific category
      * @param category - The category of tools to get
      * @returns An array of tools for the given category
      */
-    getTools: (category: keyof typeof toolPermissions): Tool[] =>
-      allowedToolsByCategory[category].map((t) =>
-        knockToolToAiTool(knockClient, config, t)
-      ),
+    getTools: (category: ToolCategory): ToolSet => {
+      return allowedToolsByCategory[category].reduce(
+        (acc, tool) => ({
+          ...acc,
+          [tool.method]: knockToolToAiTool(knockClient, config, tool),
+        }),
+        {} as ToolSet
+      );
+    },
   };
 };
 

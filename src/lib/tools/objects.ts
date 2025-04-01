@@ -7,12 +7,18 @@ const listObjects = KnockTool({
   description:
     "List all objects in a single collection. Objects are used to model custom collections in Knock that are NOT users or tenants. Use this tool when you need to return a paginated list of objects in a single collection.",
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to list objects from. Defaults to `development`."
+      ),
     collection: z
       .string()
       .describe("(string): The collection to list objects from."),
   }),
   execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
     return await publicClient.objects.list(params.collection);
   },
 });
@@ -23,13 +29,19 @@ const getObject = KnockTool({
   description:
     "Get an object wihin a collection. Returns information about the object including any custom properties. Use this tool when you need to retrieve an object to understand it's properties.",
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to get the object from. Defaults to `development`."
+      ),
     collection: z
       .string()
       .describe("(string): The collection to get the object from."),
     objectId: z.string().describe("(string): The ID of the object to get."),
   }),
   execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
     return await publicClient.objects.get(params.collection, params.objectId);
   },
 });
@@ -41,6 +53,12 @@ const createOrUpdateObject = KnockTool({
   
   Use this tool when you need to create a new object, or update an existing custom-object. Custom objects can be used to subscribe users' to as lists, and also send non-user facing notifications to.`,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to create or update the object in. Defaults to `development`."
+      ),
     collection: z
       .string()
       .describe("(string): The collection to create or update the object in."),
@@ -49,32 +67,16 @@ const createOrUpdateObject = KnockTool({
       .describe("(string): The ID of the object to create or update."),
     properties: z
       .record(z.string(), z.any())
+      .optional()
       .describe("(object): The properties to set on the object."),
   }),
   execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
     return await publicClient.objects.set(
       params.collection,
       params.objectId,
       params.properties
     );
-  },
-});
-
-const deleteObject = KnockTool({
-  method: "delete_object",
-  name: "Delete object",
-  description: `Delete an object from a specific collection. Use this tool when you need to remove an object from the system.`,
-  parameters: z.object({
-    collection: z
-      .string()
-      .describe("(string): The collection to delete the object from."),
-    objectId: z.string().describe("(string): The ID of the object to delete."),
-  }),
-  execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
-    await publicClient.objects.delete(params.collection, params.objectId);
-    return { success: true };
   },
 });
 
@@ -89,6 +91,12 @@ const subscribeUsersToObject = KnockTool({
   Before using this tool, you should create the object in the collection using the createOrUpdateObject tool.
   `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to subscribe the user to. Defaults to `development`."
+      ),
     collection: z
       .string()
       .describe("(string): The collection to subscribe the user to."),
@@ -102,7 +110,7 @@ const subscribeUsersToObject = KnockTool({
       ),
   }),
   execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
     return await publicClient.objects.addSubscriptions(
       params.collection,
       params.objectId,
@@ -120,6 +128,12 @@ const unsubscribeUsersFromObject = KnockTool({
   
   Use this tool when you need to unsubscribe one or more users from an object where you will then trigger workflows for those lists of users to send notifications to.`,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to unsubscribe the user from. Defaults to `development`."
+      ),
     collection: z
       .string()
       .describe("(string): The collection to unsubscribe the user from."),
@@ -133,7 +147,7 @@ const unsubscribeUsersFromObject = KnockTool({
       ),
   }),
   execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
     return await publicClient.objects.deleteSubscriptions(
       params.collection,
       params.objectId,
@@ -148,7 +162,6 @@ export const objects = {
   listObjects,
   getObject,
   createOrUpdateObject,
-  deleteObject,
   subscribeUsersToObject,
   unsubscribeUsersFromObject,
 };
@@ -157,7 +170,6 @@ export const permissions = {
   read: ["listObjects", "getObject"],
   manage: [
     "createOrUpdateObject",
-    "deleteObject",
     "subscribeUsersToObject",
     "unsubscribeUsersFromObject",
   ],

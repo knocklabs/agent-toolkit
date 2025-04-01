@@ -16,6 +16,7 @@ const listWorkflows = KnockTool({
   parameters: z.object({
     environment: z
       .string()
+      .optional()
       .describe(
         "(string): The environment to list workflows for. Defaults to `development`."
       ),
@@ -37,35 +38,46 @@ const triggerWorkflow = KnockTool({
   method: "trigger_workflow",
   name: "Trigger workflow",
   description: `
-  Trigger a workflow for one or more recipients.
+  Trigger a workflow for one or more recipients, which may produce one or more messages for each recipient depending on the workflow's steps.
 
   Use this tool when you need to trigger a workflow to send a notification across the channels configured for the workflow. The workflow must be committed in the environment for you to trigger it.
 
   When recipients aren't provided, the workflow will be triggered for the current user specified in the config.
   `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to trigger the workflow in. Defaults to `development`."
+      ),
     workflowKey: z
       .string()
       .describe("(string): The key of the workflow to trigger."),
     recipients: z
       .array(z.string())
-      .describe("(array): The recipients to trigger the workflow for."),
+      .optional()
+      .describe(
+        "(array): The recipients to trigger the workflow for. This is an array of user IDs."
+      ),
     data: z
       .record(z.string(), z.any())
+      .optional()
       .describe("(object): Data to pass to the workflow."),
     tenant: z
       .record(z.string(), z.any())
+      .optional()
       .describe(
         "(object): The tenant to trigger the workflow for. Must contain an id if being sent."
       ),
   }),
   execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
 
     const result = await publicClient.workflows.trigger(params.workflowKey, {
-      recipients: params.recipients,
+      recipients: params.recipients ?? [config.userId] ?? [],
       data: params.data,
-      tenant: params.tenant,
+      tenant: params.tenant ?? config.tenantId,
     });
 
     return result.workflow_run_id;
@@ -99,6 +111,7 @@ const createEmailWorkflow = KnockTool({
   parameters: z.object({
     environment: z
       .string()
+      .optional()
       .describe(
         "(string): The environment to create the workflow in. Defaults to `development`."
       ),
@@ -106,6 +119,7 @@ const createEmailWorkflow = KnockTool({
     name: z.string().describe("(string): The name of the workflow."),
     categories: z
       .array(z.string())
+      .optional()
       .describe("(array): The categories to add to the workflow."),
     subject: z.string().describe("(string): The subject of the email."),
     body: z.string().describe("(string): The body of the email."),
@@ -171,6 +185,12 @@ const createOneOffWorkflowSchedule = KnockTool({
   - In two weeks, send a survey to a user
   `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to create the workflow in. Defaults to `development`."
+      ),
     workflowKey: z
       .string()
       .describe("(string): The key of the workflow to schedule."),
@@ -186,10 +206,11 @@ const createOneOffWorkflowSchedule = KnockTool({
       ),
     data: z
       .record(z.string(), z.any())
+      .optional()
       .describe("(object): Data to pass to the workflow."),
   }),
   execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
 
     return await publicClient.workflows.createSchedules(params.workflowKey, {
       recipients: [params.userId ?? config.userId],
@@ -209,5 +230,5 @@ export const workflows = {
 export const permissions = {
   read: ["listWorkflows"],
   manage: ["createEmailWorkflow", "createOneOffWorkflowSchedule"],
-  trigger: ["triggerWorkflow"],
+  run: ["triggerWorkflow"],
 };

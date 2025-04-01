@@ -11,6 +11,7 @@ const listEmailLayouts = KnockTool({
   parameters: z.object({
     environment: z
       .string()
+      .optional()
       .describe(
         "(string): The environment to list email layouts for. Defaults to `development`."
       ),
