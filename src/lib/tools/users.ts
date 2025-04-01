@@ -10,13 +10,19 @@ const getUser = KnockTool({
    If the userId is not provided, it will use the userId from the config.
    `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to retrieve the user from. Defaults to `development`."
+      ),
     userId: z
       .string()
       .optional()
       .describe("(string): The userId of the User to retrieve."),
   }),
   execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
 
     return await publicClient.users.get(params.userId ?? config.userId);
   },
@@ -33,6 +39,12 @@ const createOrUpdateUser = KnockTool({
   If the userId is not provided, it will use the userId from the config.
   `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to create or update the user in. Defaults to `development`."
+      ),
     userId: z
       .string()
       .optional()
@@ -57,7 +69,7 @@ const createOrUpdateUser = KnockTool({
       ),
   }),
   execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
 
     return await publicClient.users.identify(params.userId ?? config.userId, {
       email: params.email,
@@ -65,25 +77,6 @@ const createOrUpdateUser = KnockTool({
       phone_number: params.phoneNumber,
       ...(params.customProperties ?? {}),
     });
-  },
-});
-
-const deleteUser = KnockTool({
-  method: "delete_user",
-  name: "Delete user",
-  description: `
-  Deletes a user. Use this tool when you've been asked to remove a user from the system.
-  `,
-  parameters: z.object({
-    userId: z
-      .string()
-      .optional()
-      .describe("(string): The userId of the User to delete."),
-  }),
-  execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
-    await publicClient.users.delete(params.userId ?? config.userId);
-    return { success: true };
   },
 });
 
@@ -96,6 +89,12 @@ const getUserPreferences = KnockTool({
   If the userId is not provided, it will use the userId from the config. 
   `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to retrieve the user preferences from. Defaults to `development`."
+      ),
     userId: z
       .string()
       .optional()
@@ -110,7 +109,7 @@ const getUserPreferences = KnockTool({
       ),
   }),
   execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
 
     return await publicClient.users.getPreferences(
       params.userId ?? config.userId,
@@ -157,6 +156,12 @@ const setUserPreferences = KnockTool({
   </examples>
   `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to set the user preferences in. Defaults to `development`."
+      ),
     userId: z
       .string()
       .optional()
@@ -181,7 +186,7 @@ const setUserPreferences = KnockTool({
       ),
   }),
   execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
 
     const existingPreferences = await publicClient.users.getPreferences(
       params.userId ?? config.userId,
@@ -222,6 +227,12 @@ const getUserMessages = KnockTool({
   If the userId is not provided, it will use the userId from the config.
   `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to retrieve the user messages from. Defaults to `development`."
+      ),
     userId: z
       .string()
       .optional()
@@ -234,7 +245,7 @@ const getUserMessages = KnockTool({
       ),
   }),
   execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
 
     return await publicClient.users.getMessages(
       params.userId ?? config.userId,
@@ -247,7 +258,6 @@ const getUserMessages = KnockTool({
 
 export const users = {
   getUser,
-  deleteUser,
   createOrUpdateUser,
   getUserPreferences,
   setUserPreferences,
@@ -255,6 +265,6 @@ export const users = {
 };
 
 export const permissions = {
-  read: ["getUser", "getUserPreferences", "getUserMessages"],
-  manage: ["createOrUpdateUser", "deleteUser", "setUserPreferences"],
+  read: ["getUser", "getUserMessages", "getUserPreferences"],
+  manage: ["createOrUpdateUser", "setUserPreferences"],
 };

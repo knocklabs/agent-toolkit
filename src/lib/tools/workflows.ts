@@ -38,13 +38,19 @@ const triggerWorkflow = KnockTool({
   method: "trigger_workflow",
   name: "Trigger workflow",
   description: `
-  Trigger a workflow for one or more recipients.
+  Trigger a workflow for one or more recipients, which may produce one or more messages for each recipient depending on the workflow's steps.
 
   Use this tool when you need to trigger a workflow to send a notification across the channels configured for the workflow. The workflow must be committed in the environment for you to trigger it.
 
   When recipients aren't provided, the workflow will be triggered for the current user specified in the config.
   `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to trigger the workflow in. Defaults to `development`."
+      ),
     workflowKey: z
       .string()
       .describe("(string): The key of the workflow to trigger."),
@@ -66,7 +72,7 @@ const triggerWorkflow = KnockTool({
       ),
   }),
   execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
 
     const result = await publicClient.workflows.trigger(params.workflowKey, {
       recipients: params.recipients ?? [config.userId] ?? [],
@@ -179,6 +185,12 @@ const createOneOffWorkflowSchedule = KnockTool({
   - In two weeks, send a survey to a user
   `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to create the workflow in. Defaults to `development`."
+      ),
     workflowKey: z
       .string()
       .describe("(string): The key of the workflow to schedule."),
@@ -198,7 +210,7 @@ const createOneOffWorkflowSchedule = KnockTool({
       .describe("(object): Data to pass to the workflow."),
   }),
   execute: (knockClient, config) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
 
     return await publicClient.workflows.createSchedules(params.workflowKey, {
       recipients: [params.userId ?? config.userId],

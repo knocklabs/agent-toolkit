@@ -10,13 +10,41 @@ const getTenant = KnockTool({
   Use this tool when you need to lookup the information about a tenant, including name, and if there are any custom properties set.
   `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to retrieve the tenant from. Defaults to `development`."
+      ),
     tenantId: z
       .string()
       .describe("(string): The ID of the tenant to retrieve."),
   }),
   execute: (knockClient) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
     return await publicClient.tenants.get(params.tenantId);
+  },
+});
+
+const listTenants = KnockTool({
+  method: "list_tenants",
+  name: "List tenants",
+  description: `
+  Retrieves a list of tenants. Tenants in Knock are used to model organizations, teams, and other groups of users. They are a special type of object. 
+  
+  Use this tool when you need to list all tenants in an environment.
+  `,
+  parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to retrieve the tenants from. Defaults to `development`."
+      ),
+  }),
+  execute: (knockClient) => async (params) => {
+    const publicClient = await knockClient.publicApi(params.environment);
+    return await publicClient.tenants.list();
   },
 });
 
@@ -29,6 +57,12 @@ const setTenant = KnockTool({
   Use this tool when you need to create a new tenant, or update an existing tenant's properties.
   `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to set the tenant in. Defaults to `development`."
+      ),
     tenantId: z.string().describe("(string): The ID of the tenant to update."),
     name: z.string().optional().describe("(string): The name of the tenant."),
     properties: z
@@ -37,7 +71,7 @@ const setTenant = KnockTool({
       .describe("(object): The properties to set on the tenant."),
   }),
   execute: (knockClient) => async (params) => {
-    const publicClient = await knockClient.publicApi();
+    const publicClient = await knockClient.publicApi(params.environment);
     return await publicClient.tenants.set(params.tenantId, {
       name: params.name,
       ...params.properties,
@@ -45,31 +79,13 @@ const setTenant = KnockTool({
   },
 });
 
-const deleteTenant = KnockTool({
-  method: "delete_tenant",
-  name: "Delete tenant",
-  description: `
-  Deletes a tenant. Tenants in Knock are used to model organizations, teams, and other groups of users. They are a special type of object.
-  
-  Use this tool when you've been asked to remove a tenant from the system.
-  `,
-  parameters: z.object({
-    tenantId: z.string().describe("(string): The ID of the tenant to delete."),
-  }),
-  execute: (knockClient) => async (params) => {
-    const publicClient = await knockClient.publicApi();
-    await publicClient.tenants.delete(params.tenantId);
-    return { success: true };
-  },
-});
-
 export const tenants = {
   getTenant,
+  listTenants,
   setTenant,
-  deleteTenant,
 };
 
 export const permissions = {
-  read: ["getTenant"],
-  manage: ["setTenant", "deleteTenant"],
+  read: ["getTenant", "listTenants"],
+  manage: ["setTenant"],
 };

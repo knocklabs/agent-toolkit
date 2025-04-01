@@ -104,25 +104,8 @@ const createOrUpdateMessageType = KnockTool({
                     "value": "warning",
                     "label": "Warning",
                   },
-                  {
-                    "value": "success",
-                    "label": "Success",
-                  },
-                  {
-                    "value": "info",
-                    "label": "Info",
-                  },
-                  {
-                    "value": "error",
-                    "label": "Error",
-                  },
                 ]
               },
-            },
-            {
-              "key": "title",
-              "type": "text",
-              "label": "Title",
             },
             {
               "key": "description",
@@ -178,11 +161,12 @@ const createOrUpdateMessageType = KnockTool({
                 type: z
                   .string()
                   .describe(
-                    "(string): The type of the field. One of `text`, `textarea`, `button`, `markdown`, `select`, `multi_select`."
+                    "(string): The type of the field. One of `text`, `textarea`, `button`, `markdown`, `select`, `multi_select`, `image`."
                   ),
                 label: z.string().describe("(string): The label of the field."),
                 settings: z
                   .object({})
+                  .optional()
                   .describe("(object): The settings of the field."),
               })
             )
