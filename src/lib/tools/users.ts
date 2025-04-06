@@ -1,5 +1,13 @@
 import { z } from "zod";
+import { User } from "@knocklabs/node";
 import { KnockTool } from "../knock-tool.js";
+import { serializeMessageResponse } from "../utils.js";
+function maybeHideUserData(user: User, hideUserData: boolean = false) {
+  if (hideUserData) {
+    return { id: user.id };
+  }
+  return user;
+}
 
 const getUser = KnockTool({
   method: "get_user",
@@ -24,7 +32,9 @@ const getUser = KnockTool({
   execute: (knockClient, config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
 
-    return await publicClient.users.get(params.userId ?? config.userId);
+    const user = await publicClient.users.get(params.userId ?? config.userId);
+
+    return maybeHideUserData(user, config.hideUserData);
   },
 });
 
@@ -71,12 +81,17 @@ const createOrUpdateUser = KnockTool({
   execute: (knockClient, config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
 
-    return await publicClient.users.identify(params.userId ?? config.userId, {
-      email: params.email,
-      name: params.name,
-      phone_number: params.phoneNumber,
-      ...(params.customProperties ?? {}),
-    });
+    const user = await publicClient.users.identify(
+      params.userId ?? config.userId,
+      {
+        email: params.email,
+        name: params.name,
+        phone_number: params.phoneNumber,
+        ...(params.customProperties ?? {}),
+      }
+    );
+
+    return maybeHideUserData(user, config.hideUserData);
   },
 });
 
@@ -247,12 +262,14 @@ const getUserMessages = KnockTool({
   execute: (knockClient, config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
 
-    return await publicClient.users.getMessages(
+    const messages = await publicClient.users.getMessages(
       params.userId ?? config.userId,
       {
         workflow_run_id: params.workflowRunId,
       }
     );
+
+    return messages.items.map(serializeMessageResponse);
   },
 });
 

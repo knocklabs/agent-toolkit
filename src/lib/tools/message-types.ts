@@ -2,6 +2,26 @@ import { z } from "zod";
 import { KnockTool } from "../knock-tool.js";
 import { MessageType } from "@knocklabs/mgmt/resources/message-types.js";
 
+/**
+ * A slimmed down version of the MessageType resource that is easier to work with in the LLM.
+ */
+type SerializedMessageType = {
+  key: string;
+  name: string;
+  description?: string | null;
+  variants: string[];
+};
+
+function serializeMessageTypeResponse(
+  messageType: MessageType
+): SerializedMessageType {
+  return {
+    key: messageType.key,
+    name: messageType.name,
+    description: messageType.description,
+    variants: messageType.variants.map((variant) => variant.key),
+  };
+}
 const listMessageTypes = KnockTool({
   method: "list_message_types",
   name: "List message types",
@@ -16,11 +36,11 @@ const listMessageTypes = KnockTool({
       ),
   }),
   execute: (knockClient, config) => async (params) => {
-    const allMessageTypes: MessageType[] = [];
+    const allMessageTypes: SerializedMessageType[] = [];
     for await (const messageType of knockClient.messageTypes.list({
       environment: params.environment ?? config.environment ?? "development",
     })) {
-      allMessageTypes.push(messageType);
+      allMessageTypes.push(serializeMessageTypeResponse(messageType));
     }
     return allMessageTypes;
   },

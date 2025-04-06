@@ -5,13 +5,34 @@ import {
   WorkflowUpsertParams,
 } from "@knocklabs/mgmt/resources/index.js";
 
+/**
+ * A slimmed down version of the Workflow resource that is easier to work with in the LLM.
+ */
+type SerializedWorkflow = {
+  key: string;
+  name: string;
+  description: string | undefined;
+  categories: string[] | undefined;
+  schema: Record<string, unknown> | undefined;
+};
+
+function serializeWorkflowResponse(workflow: Workflow): SerializedWorkflow {
+  return {
+    key: workflow.key,
+    name: workflow.name,
+    description: workflow.description,
+    categories: workflow.categories,
+    schema: workflow.trigger_data_json_schema,
+  };
+}
+
 const listWorkflows = KnockTool({
   method: "list_workflows",
   name: "List workflows",
   description: `
-  List all workflows available for the given environment. Returns structural information about the workflows, including the key, name, description, and categories. Will also return the steps that make up the workflow. 
+  List all workflows available for the given environment. Returns structural information about the workflows, including the key, name, description, and categories.
 
-  Use this tool when you need to understand which workflows are available to be called. 
+  Use this tool when you need to understand which workflows are available to be called.
   `,
   parameters: z.object({
     environment: z
@@ -22,15 +43,42 @@ const listWorkflows = KnockTool({
       ),
   }),
   execute: (knockClient, config) => async (params) => {
-    const allWorkflows: Workflow[] = [];
+    const allWorkflows: SerializedWorkflow[] = [];
     const listParams = {
       environment: params.environment ?? config.environment ?? "development",
     };
 
     for await (const workflow of knockClient.workflows.list(listParams)) {
-      allWorkflows.push(workflow);
+      allWorkflows.push(serializeWorkflowResponse(workflow));
     }
+
     return allWorkflows;
+  },
+});
+
+const getWorkflow = KnockTool({
+  method: "get_workflow",
+  name: "Get workflow",
+  description: `
+  Get a workflow by key. Returns structural information about the workflow, including the key, name, description, and categories.
+  `,
+  parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to get the workflow for. Defaults to `development`."
+      ),
+    workflowKey: z
+      .string()
+      .describe("(string): The key of the workflow to get."),
+  }),
+  execute: (knockClient, config) => async (params) => {
+    const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
+      environment: params.environment ?? config.environment ?? "development",
+    });
+
+    return serializeWorkflowResponse(workflow);
   },
 });
 
@@ -43,6 +91,8 @@ const triggerWorkflow = KnockTool({
   Use this tool when you need to trigger a workflow to send a notification across the channels configured for the workflow. The workflow must be committed in the environment for you to trigger it.
 
   When recipients aren't provided, the workflow will be triggered for the current user specified in the config.
+
+  Returns the workflow run ID, which can be used to lookup messages produced by the workflow.
   `,
   parameters: z.object({
     environment: z
@@ -163,10 +213,12 @@ const createEmailWorkflow = KnockTool({
       },
     };
 
-    return await knockClient.workflows.upsert(
+    const result = await knockClient.workflows.upsert(
       params.workflowKey,
       workflowParams
     );
+
+    return serializeWorkflowResponse(result.workflow);
   },
 });
 
@@ -222,13 +274,14 @@ const createOneOffWorkflowSchedule = KnockTool({
 
 export const workflows = {
   listWorkflows,
+  getWorkflow,
   triggerWorkflow,
   createEmailWorkflow,
   createOneOffWorkflowSchedule,
 };
 
 export const permissions = {
-  read: ["listWorkflows"],
+  read: ["listWorkflows", "getWorkflow"],
   manage: ["createEmailWorkflow", "createOneOffWorkflowSchedule"],
   run: ["triggerWorkflow"],
 };

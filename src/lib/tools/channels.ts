@@ -1,6 +1,25 @@
 import { KnockTool } from "../knock-tool.js";
 import { Channel } from "@knocklabs/mgmt/resources/channels.js";
 
+/**
+ * A slimmed down version of the Channel resource that is easier to work with in the LLM.
+ */
+type SerializedChannel = {
+  key: string;
+  name: string;
+  type: string;
+  provider: string;
+};
+
+function serializeChannelResponse(channel: Channel): SerializedChannel {
+  return {
+    key: channel.key,
+    name: channel.name,
+    type: channel.type,
+    provider: channel.provider,
+  };
+}
+
 const listChannels = KnockTool({
   method: "list_channels",
   name: "List channels",
@@ -10,9 +29,9 @@ const listChannels = KnockTool({
   Use this tool when you need to know about the channels configured in the Knock account, like when configuring a workflow.
   `,
   execute: (knockClient) => async (params) => {
-    const allChannels: Channel[] = [];
+    const allChannels: SerializedChannel[] = [];
     for await (const channel of knockClient.channels.list()) {
-      allChannels.push(channel);
+      allChannels.push(serializeChannelResponse(channel));
     }
     return allChannels;
   },

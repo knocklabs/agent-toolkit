@@ -21,6 +21,12 @@ export interface Config {
    * the `development` environment.
    */
   environment?: string | undefined;
+
+  /**
+   * Whether to hide user data from LLM responses. When true, the LLM will not have access to user
+   * data and only the ID will be returned. Defaults to `false`.
+   */
+  hideUserData?: boolean | undefined;
 }
 
 export type TransformPermissions<T> = {
@@ -30,6 +36,9 @@ export type TransformPermissions<T> = {
 };
 
 export interface ToolkitConfig extends Config {
+  /**
+   * The permissions to use for the toolkit.
+   */
   permissions: TransformPermissions<typeof toolPermissions>;
 }
 
