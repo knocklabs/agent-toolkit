@@ -110,3 +110,19 @@ export function getToolsByPermissionsInCategories(
     {} as Record<ToolCategory, KnockTool[]>
   );
 }
+
+/**
+ * Serialize a message response from the API to a more LLM-friendly format.
+ *
+ * @param message - The message to serialize
+ * @returns A serialized message
+ */
+export function serializeMessageResponse(message: Record<string, any>) {
+  return {
+    id: message.id,
+    status: message.status,
+    engagement_statuses: message.engagement_statuses,
+    data: message.data,
+    metadata: message.metadata,
+  };
+}

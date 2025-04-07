@@ -2,6 +2,25 @@ import { KnockTool } from "../knock-tool.js";
 import { z } from "zod";
 import { Partial } from "@knocklabs/mgmt/resources/partials.js";
 
+/**
+ * A slimmed down version of the Partial resource that is easier to work with in the LLM.
+ */
+type SerializedPartial = {
+  key: string;
+  type: Partial["type"];
+  name: string;
+  description?: string;
+};
+
+function serializePartial(partial: Partial): SerializedPartial {
+  return {
+    key: partial.key,
+    type: partial.type,
+    name: partial.name,
+    description: partial.description,
+  };
+}
+
 const listPartials = KnockTool({
   method: "list_partials",
   name: "List partials",
@@ -17,11 +36,11 @@ const listPartials = KnockTool({
       ),
   }),
   execute: (knockClient, config) => async (params) => {
-    const allPartials: Partial[] = [];
+    const allPartials: SerializedPartial[] = [];
     for await (const partial of knockClient.partials.list({
       environment: params.environment ?? config.environment ?? "development",
     })) {
-      allPartials.push(partial);
+      allPartials.push(serializePartial(partial));
     }
     return allPartials;
   },
