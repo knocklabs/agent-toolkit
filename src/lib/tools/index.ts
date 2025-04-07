@@ -18,10 +18,15 @@ import { partials, permissions as partialsPermissions } from "./partials.js";
 import { tenants, permissions as tenantsPermissions } from "./tenants.js";
 import { users, permissions as usersPermissions } from "./users.js";
 import { workflows, permissions as workflowsPermissions } from "./workflows.js";
+import {
+  documentation,
+  permissions as documentationPermissions,
+} from "./documentation.js";
 
 export const tools = {
   channels,
   commits,
+  documentation,
   emailLayouts,
   environments,
   messages,
@@ -36,6 +41,7 @@ export const tools = {
 export const allTools = {
   ...channels,
   ...commits,
+  ...documentation,
   ...emailLayouts,
   ...environments,
   ...messageTypes,
@@ -50,6 +56,7 @@ export const allTools = {
 export const toolPermissions = {
   channels: channelsPermissions,
   commits: commitsPermissions,
+  documentation: documentationPermissions,
   emailLayouts: emailLayoutsPermissions,
   environments: environmentsPermissions,
   messages: messagesPermissions,
