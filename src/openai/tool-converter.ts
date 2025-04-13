@@ -10,7 +10,9 @@ import { KnockTool } from "../lib/knock-tool.js";
  * @param knockTool - The KnockTool to convert
  * @returns The converted ChatCompletionTool
  */
-export function knockToolToChatCompletionTool(knockTool: KnockTool): ChatCompletionTool {
+export function knockToolToChatCompletionTool(
+  knockTool: KnockTool
+): ChatCompletionTool {
   return {
     type: "function",
     function: {

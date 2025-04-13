@@ -30,5 +30,7 @@ export const createKnockMcpServer = async (
 ): Promise<KnockMcpServer> => {
   const { tools, knockClient, config } = params;
 
-  return Promise.resolve(new KnockMcpServer(knockClient, config, tools || Object.values(allTools)));
+  return Promise.resolve(
+    new KnockMcpServer(knockClient, config, tools || Object.values(allTools))
+  );
 };

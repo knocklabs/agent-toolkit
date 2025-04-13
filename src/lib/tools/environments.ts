@@ -10,7 +10,9 @@ type SerializedEnvironment = {
   name: string;
 };
 
-function serializeEnvironmentResponse(environment: Environment): SerializedEnvironment {
+function serializeEnvironmentResponse(
+  environment: Environment
+): SerializedEnvironment {
   return {
     slug: environment.slug,
     name: environment.name,

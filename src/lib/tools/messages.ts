@@ -15,7 +15,9 @@ const getMessageContent = KnockTool({
       .describe(
         "(string): The environment to retrieve the message from. Defaults to `development`."
       ),
-    messageId: z.string().describe("(string): The messageId of the message to retrieve."),
+    messageId: z
+      .string()
+      .describe("(string): The messageId of the message to retrieve."),
   }),
   execute: (knockClient) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);

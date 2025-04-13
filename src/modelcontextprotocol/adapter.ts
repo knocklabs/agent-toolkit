@@ -12,13 +12,18 @@ export class KnockMcpServer extends McpServer {
     tools.forEach((tool) => {
       const toolParams = tool.parameters ?? z.object({});
 
-      this.tool(tool.method, tool.description, toolParams.shape, async (arg: unknown) => {
-        const res = await tool.bindExecute(knockClient, config)(arg);
+      this.tool(
+        tool.method,
+        tool.description,
+        toolParams.shape,
+        async (arg: unknown) => {
+          const res = await tool.bindExecute(knockClient, config)(arg);
 
-        return {
-          content: [{ type: "text" as const, text: JSON.stringify(res) }],
-        };
-      });
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify(res) }],
+          };
+        }
+      );
     });
   }
 }

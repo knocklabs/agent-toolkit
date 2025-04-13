@@ -11,7 +11,9 @@ type SerializedEmailLayout = {
   name: string;
 };
 
-function serializeEmailLayoutResponse(emailLayout: EmailLayout): SerializedEmailLayout {
+function serializeEmailLayoutResponse(
+  emailLayout: EmailLayout
+): SerializedEmailLayout {
   return {
     key: emailLayout.key,
     name: emailLayout.name,
@@ -28,7 +30,9 @@ const listEmailLayouts = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe("(string): The environment to list email layouts for. Defaults to `development`."),
+      .describe(
+        "(string): The environment to list email layouts for. Defaults to `development`."
+      ),
   }),
   execute: (knockClient, config) => async (params) => {
     const allEmailLayouts: SerializedEmailLayout[] = [];

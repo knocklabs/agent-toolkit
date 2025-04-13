@@ -12,10 +12,14 @@ const listCommits = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe("(string): The environment to list commits for. Defaults to `development`."),
+      .describe(
+        "(string): The environment to list commits for. Defaults to `development`."
+      ),
     promoted: z
       .boolean()
-      .describe("(boolean): Whether to only return promoted commits. Defaults to `false`."),
+      .describe(
+        "(boolean): Whether to only return promoted commits. Defaults to `false`."
+      ),
   }),
   execute: (knockClient, config) => async (params) => {
     return await knockClient.commits.list({
@@ -35,8 +39,13 @@ const commitAllChanges = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe("(string): The environment to commit all changes to. Defaults to `development`."),
-    message: z.string().optional().describe("(string): The message to include in the commit."),
+      .describe(
+        "(string): The environment to commit all changes to. Defaults to `development`."
+      ),
+    message: z
+      .string()
+      .optional()
+      .describe("(string): The message to include in the commit."),
   }),
   execute: (knockClient, config) => async (params) => {
     return await knockClient.commits.commitAll({
@@ -53,7 +62,9 @@ const promoteAllCommits = KnockTool({
   Promote all commits to the next environment. Use this tool when you are asked to deploy all changes.
   `,
   parameters: z.object({
-    toEnvironment: z.string().describe("(string): The environment to promote all commits to."),
+    toEnvironment: z
+      .string()
+      .describe("(string): The environment to promote all commits to."),
   }),
   execute: (knockClient, _config) => async (params) => {
     return await knockClient.put("/v1/commits/promote", {

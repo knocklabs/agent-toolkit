@@ -34,11 +34,17 @@ export interface KnockToolDefinition {
   /**
    * The actual implementation of the tool.
    */
-  execute: (knockClient: KnockClient, config: Config) => (input: any) => Promise<unknown>;
+  execute: (
+    knockClient: KnockClient,
+    config: Config
+  ) => (input: any) => Promise<unknown>;
 }
 
 export interface KnockTool extends Omit<KnockToolDefinition, "execute"> {
-  bindExecute: (knockClient: KnockClient, config: Config) => (input: any) => Promise<unknown>;
+  bindExecute: (
+    knockClient: KnockClient,
+    config: Config
+  ) => (input: any) => Promise<unknown>;
 }
 
 const trimLines = (text: string) =>
@@ -48,9 +54,13 @@ const trimLines = (text: string) =>
     .filter(Boolean)
     .join("\n");
 
-export const KnockTool = (args: Omit<KnockToolDefinition, "fullDescription">): KnockTool => {
+export const KnockTool = (
+  args: Omit<KnockToolDefinition, "fullDescription">
+): KnockTool => {
   const { execute, ...restOfArgs } = args;
-  const parameters = restOfArgs.parameters ? restOfArgs.parameters : z.object({});
+  const parameters = restOfArgs.parameters
+    ? restOfArgs.parameters
+    : z.object({});
 
   const schemaEntries = Object.entries(parameters.shape);
 
@@ -76,6 +86,7 @@ export const KnockTool = (args: Omit<KnockToolDefinition, "fullDescription">): K
     ...restOfArgs,
     parameters,
     fullDescription,
-    bindExecute: (knockClient: KnockClient, config: Config) => execute(knockClient, config),
+    bindExecute: (knockClient: KnockClient, config: Config) =>
+      execute(knockClient, config),
   };
 };

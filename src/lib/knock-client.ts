@@ -14,7 +14,8 @@ const createKnockClient = (config: Config) => {
 
   return Object.assign(client, {
     publicApi: async (environmentSlug?: string): Promise<Knock> => {
-      const environment = environmentSlug ?? config.environment ?? "development";
+      const environment =
+        environmentSlug ?? config.environment ?? "development";
 
       // If the client already exists for this service token and environment, return it
       if (serviceTokensToApiClients?.[config.serviceToken]?.[environment]) {

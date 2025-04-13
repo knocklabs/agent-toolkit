@@ -32,7 +32,9 @@ const listPartials = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe("(string): The environment to list partials for. Defaults to `development`."),
+      .describe(
+        "(string): The environment to list partials for. Defaults to `development`."
+      ),
   }),
   execute: (knockClient, config) => async (params) => {
     const allPartials: SerializedPartial[] = [];

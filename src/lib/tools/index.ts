@@ -1,9 +1,21 @@
 import { channels, permissions as channelsPermissions } from "./channels.js";
 import { commits, permissions as commitsPermissions } from "./commits.js";
-import { documentation, permissions as documentationPermissions } from "./documentation.js";
-import { emailLayouts, permissions as emailLayoutsPermissions } from "./email-layouts.js";
-import { environments, permissions as environmentsPermissions } from "./environments.js";
-import { messageTypes, permissions as messageTypesPermissions } from "./message-types.js";
+import {
+  documentation,
+  permissions as documentationPermissions,
+} from "./documentation.js";
+import {
+  emailLayouts,
+  permissions as emailLayoutsPermissions,
+} from "./email-layouts.js";
+import {
+  environments,
+  permissions as environmentsPermissions,
+} from "./environments.js";
+import {
+  messageTypes,
+  permissions as messageTypesPermissions,
+} from "./message-types.js";
 import { messages, permissions as messagesPermissions } from "./messages.js";
 import { objects, permissions as objectsPermissions } from "./objects.js";
 import { partials, permissions as partialsPermissions } from "./partials.js";
