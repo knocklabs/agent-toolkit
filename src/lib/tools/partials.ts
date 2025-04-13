@@ -1,6 +1,7 @@
-import { KnockTool } from "../knock-tool.js";
-import { z } from "zod";
 import { Partial } from "@knocklabs/mgmt/resources/partials.js";
+import { z } from "zod";
+
+import { KnockTool } from "@/lib/knock-tool.js";
 
 /**
  * A slimmed down version of the Partial resource that is easier to work with in the LLM.
@@ -31,9 +32,7 @@ const listPartials = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to list partials for. Defaults to `development`."
-      ),
+      .describe("(string): The environment to list partials for. Defaults to `development`."),
   }),
   execute: (knockClient, config) => async (params) => {
     const allPartials: SerializedPartial[] = [];

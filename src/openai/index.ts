@@ -3,11 +3,13 @@ import {
   ChatCompletionMessageToolCall,
   ChatCompletionToolMessageParam,
 } from "openai/resources.mjs";
-import { ToolCategory, ToolkitConfig } from "../types.js";
-import { getToolsByPermissionsInCategories } from "../lib/utils.js";
+
 import { createKnockClient } from "../lib/knock-client.js";
-import { knockToolToChatCompletionTool } from "./tool-converter.js";
 import { KnockTool } from "../lib/knock-tool.js";
+import { getToolsByPermissionsInCategories } from "../lib/utils.js";
+import { ToolCategory, ToolkitConfig } from "../types.js";
+
+import { knockToolToChatCompletionTool } from "./tool-converter.js";
 
 const createKnockToolkit = (config: ToolkitConfig) => {
   const knockClient = createKnockClient(config);
@@ -15,10 +17,7 @@ const createKnockToolkit = (config: ToolkitConfig) => {
 
   const toolsByMethod = Object.values(allowedToolsByCategory)
     .flat()
-    .reduce(
-      (acc, tool) => ({ ...acc, [tool.method]: tool }),
-      {} as Record<string, KnockTool>
-    );
+    .reduce((acc, tool) => ({ ...acc, [tool.method]: tool }), {} as Record<string, KnockTool>);
 
   return {
     /**
@@ -36,9 +35,7 @@ const createKnockToolkit = (config: ToolkitConfig) => {
      * @returns An array of tools for the given category
      */
     getTools: (category: ToolCategory): ChatCompletionTool[] =>
-      allowedToolsByCategory[category].map((t) =>
-        knockToolToChatCompletionTool(t)
-      ),
+      allowedToolsByCategory[category].map((t) => knockToolToChatCompletionTool(t)),
 
     /**
      * Get a map of all tools by method name.
@@ -66,10 +63,7 @@ const createKnockToolkit = (config: ToolkitConfig) => {
         throw new Error(`Tool ${toolCall.function.name} not found`);
       }
 
-      const result = await tool.bindExecute(
-        knockClient,
-        config
-      )(toolCall.function.arguments);
+      const result = await tool.bindExecute(knockClient, config)(toolCall.function.arguments);
 
       return {
         role: "tool",

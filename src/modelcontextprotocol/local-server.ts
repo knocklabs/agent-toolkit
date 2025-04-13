@@ -5,10 +5,11 @@ import { default as yargs } from "yargs";
 import { hideBin } from "yargs/helpers";
 
 import { createKnockClient } from "../lib/knock-client.js";
-import { Config } from "../types.js";
-import { createKnockMcpServer } from "./index.js";
 import { tools } from "../lib/tools/index.js";
 import { filterTools } from "../lib/utils.js";
+import { Config } from "../types.js";
+
+import { createKnockMcpServer } from "./index.js";
 
 /**
  * Main entry point for the Knock MCP server.

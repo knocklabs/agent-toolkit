@@ -1,5 +1,6 @@
-import { z } from "zod";
 import { User } from "@knocklabs/node";
+import { z } from "zod";
+
 import { KnockTool } from "../knock-tool.js";
 import { serializeMessageResponse } from "../utils.js";
 function maybeHideUserData(user: User, hideUserData: boolean = false) {
@@ -21,13 +22,8 @@ const getUser = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to retrieve the user from. Defaults to `development`."
-      ),
-    userId: z
-      .string()
-      .optional()
-      .describe("(string): The userId of the User to retrieve."),
+      .describe("(string): The environment to retrieve the user from. Defaults to `development`."),
+    userId: z.string().optional().describe("(string): The userId of the User to retrieve."),
   }),
   execute: (knockClient, config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
@@ -55,18 +51,9 @@ const createOrUpdateUser = KnockTool({
       .describe(
         "(string): The environment to create or update the user in. Defaults to `development`."
       ),
-    userId: z
-      .string()
-      .optional()
-      .describe("(string): The userId of the User to update."),
-    email: z
-      .string()
-      .optional()
-      .describe("(string): The email of the User to update."),
-    name: z
-      .string()
-      .optional()
-      .describe("(string): The name of the User to update."),
+    userId: z.string().optional().describe("(string): The userId of the User to update."),
+    email: z.string().optional().describe("(string): The email of the User to update."),
+    name: z.string().optional().describe("(string): The name of the User to update."),
     phoneNumber: z
       .string()
       .optional()
@@ -74,22 +61,17 @@ const createOrUpdateUser = KnockTool({
     customProperties: z
       .record(z.string(), z.any())
       .optional()
-      .describe(
-        "(object): A dictionary of custom properties to update for the User."
-      ),
+      .describe("(object): A dictionary of custom properties to update for the User."),
   }),
   execute: (knockClient, config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
 
-    const user = await publicClient.users.identify(
-      params.userId ?? config.userId,
-      {
-        email: params.email,
-        name: params.name,
-        phone_number: params.phoneNumber,
-        ...(params.customProperties ?? {}),
-      }
-    );
+    const user = await publicClient.users.identify(params.userId ?? config.userId, {
+      email: params.email,
+      name: params.name,
+      phone_number: params.phoneNumber,
+      ...(params.customProperties ?? {}),
+    });
 
     return maybeHideUserData(user, config.hideUserData);
   },
@@ -113,9 +95,7 @@ const getUserPreferences = KnockTool({
     userId: z
       .string()
       .optional()
-      .describe(
-        "(string): The userId of the User to retrieve Preferences for."
-      ),
+      .describe("(string): The userId of the User to retrieve Preferences for."),
     preferenceSetId: z
       .string()
       .optional()
@@ -126,12 +106,9 @@ const getUserPreferences = KnockTool({
   execute: (knockClient, config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
 
-    return await publicClient.users.getPreferences(
-      params.userId ?? config.userId,
-      {
-        preferenceSet: params.preferenceSetId ?? "default",
-      }
-    );
+    return await publicClient.users.getPreferences(params.userId ?? config.userId, {
+      preferenceSet: params.preferenceSetId ?? "default",
+    });
   },
 });
 
@@ -262,12 +239,9 @@ const getUserMessages = KnockTool({
   execute: (knockClient, config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
 
-    const messages = await publicClient.users.getMessages(
-      params.userId ?? config.userId,
-      {
-        workflow_run_id: params.workflowRunId,
-      }
-    );
+    const messages = await publicClient.users.getMessages(params.userId ?? config.userId, {
+      workflow_run_id: params.workflowRunId,
+    });
 
     return messages.items.map(serializeMessageResponse);
   },

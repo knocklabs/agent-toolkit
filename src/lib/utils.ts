@@ -1,7 +1,7 @@
-import { KnockTool } from "./knock-tool.js";
 import { toolPermissions, tools } from "../lib/tools/index.js";
-import { ToolkitConfig } from "../types.js";
-import { ToolCategory } from "../types.js";
+import { ToolkitConfig, ToolCategory } from "../types.js";
+
+import { KnockTool } from "./knock-tool.js";
 
 /**
  * Given a list of tools, and some config may describe the tools that should be provided to the LLM,
@@ -63,10 +63,7 @@ export function getToolsWithPermissions(
 ) {
   // Return all of the tools for the category that have permission
   const toolsInCategory = tools[category] as Record<string, KnockTool>;
-  const toolPermissionsInCategory = toolPermissions[category] as Record<
-    string,
-    string[]
-  >;
+  const toolPermissionsInCategory = toolPermissions[category] as Record<string, string[]>;
 
   // Look over each permission type, like `read: true`
   // If it's `true`, then find all of the tools that have that permission
@@ -74,9 +71,7 @@ export function getToolsWithPermissions(
     (acc: KnockTool[], [permissionType, hasPermission]) => {
       if (hasPermission) {
         return acc.concat(
-          toolPermissionsInCategory[permissionType].map(
-            (toolName) => toolsInCategory[toolName]
-          )
+          toolPermissionsInCategory[permissionType].map((toolName) => toolsInCategory[toolName])
         );
       }
       return acc;

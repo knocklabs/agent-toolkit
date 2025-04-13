@@ -22,5 +22,10 @@ export default defineConfig((overrideOptions) => {
       PACKAGE_VERSION: `"${version}"`,
       __DEV__: `${!isProd}`,
     },
+    esbuildOptions(options) {
+      options.alias = {
+        '@': './src'
+      };
+    },
   };
 });

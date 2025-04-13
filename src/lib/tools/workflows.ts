@@ -1,9 +1,7 @@
+import { Workflow, WorkflowUpsertParams } from "@knocklabs/mgmt/resources/index.js";
 import { z } from "zod";
+
 import { KnockTool } from "../knock-tool.js";
-import {
-  Workflow,
-  WorkflowUpsertParams,
-} from "@knocklabs/mgmt/resources/index.js";
 
 /**
  * A slimmed down version of the Workflow resource that is easier to work with in the LLM.
@@ -38,9 +36,7 @@ const listWorkflows = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to list workflows for. Defaults to `development`."
-      ),
+      .describe("(string): The environment to list workflows for. Defaults to `development`."),
   }),
   execute: (knockClient, config) => async (params) => {
     const allWorkflows: SerializedWorkflow[] = [];
@@ -66,12 +62,8 @@ const getWorkflow = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to get the workflow for. Defaults to `development`."
-      ),
-    workflowKey: z
-      .string()
-      .describe("(string): The key of the workflow to get."),
+      .describe("(string): The environment to get the workflow for. Defaults to `development`."),
+    workflowKey: z.string().describe("(string): The key of the workflow to get."),
   }),
   execute: (knockClient, config) => async (params) => {
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
@@ -98,12 +90,8 @@ const triggerWorkflow = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to trigger the workflow in. Defaults to `development`."
-      ),
-    workflowKey: z
-      .string()
-      .describe("(string): The key of the workflow to trigger."),
+      .describe("(string): The environment to trigger the workflow in. Defaults to `development`."),
+    workflowKey: z.string().describe("(string): The key of the workflow to trigger."),
     recipients: z
       .array(z.string())
       .optional()
@@ -162,9 +150,7 @@ const createEmailWorkflow = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to create the workflow in. Defaults to `development`."
-      ),
+      .describe("(string): The environment to create the workflow in. Defaults to `development`."),
     workflowKey: z.string().describe("(string): The key of the workflow."),
     name: z.string().describe("(string): The name of the workflow."),
     categories: z
@@ -176,9 +162,7 @@ const createEmailWorkflow = KnockTool({
   }),
   execute: (knockClient, config) => async (params) => {
     const emailChannelsPage = await knockClient.channels.list();
-    const emailChannels = emailChannelsPage.entries.filter(
-      (channel) => channel.type === "email"
-    );
+    const emailChannels = emailChannelsPage.entries.filter((channel) => channel.type === "email");
 
     if (emailChannels.length === 0) {
       throw new Error("No email channels found");
@@ -213,10 +197,7 @@ const createEmailWorkflow = KnockTool({
       },
     };
 
-    const result = await knockClient.workflows.upsert(
-      params.workflowKey,
-      workflowParams
-    );
+    const result = await knockClient.workflows.upsert(params.workflowKey, workflowParams);
 
     return serializeWorkflowResponse(result.workflow);
   },
@@ -240,17 +221,9 @@ const createOneOffWorkflowSchedule = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to create the workflow in. Defaults to `development`."
-      ),
-    workflowKey: z
-      .string()
-      .describe("(string): The key of the workflow to schedule."),
-    userId: z
-      .string()
-      .describe(
-        "(string): The userId of the user to schedule the workflow for."
-      ),
+      .describe("(string): The environment to create the workflow in. Defaults to `development`."),
+    workflowKey: z.string().describe("(string): The key of the workflow to schedule."),
+    userId: z.string().describe("(string): The userId of the user to schedule the workflow for."),
     scheduledAt: z
       .string()
       .describe(

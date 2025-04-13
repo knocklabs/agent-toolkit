@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import { KnockTool } from "../knock-tool.js";
 
 const listObjects = KnockTool({
@@ -10,14 +11,10 @@ const listObjects = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to list objects from. Defaults to `development`."
-      ),
-    collection: z
-      .string()
-      .describe("(string): The collection to list objects from."),
+      .describe("(string): The environment to list objects from. Defaults to `development`."),
+    collection: z.string().describe("(string): The collection to list objects from."),
   }),
-  execute: (knockClient, config) => async (params) => {
+  execute: (knockClient, _config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
     return await publicClient.objects.list(params.collection);
   },
@@ -32,15 +29,11 @@ const getObject = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to get the object from. Defaults to `development`."
-      ),
-    collection: z
-      .string()
-      .describe("(string): The collection to get the object from."),
+      .describe("(string): The environment to get the object from. Defaults to `development`."),
+    collection: z.string().describe("(string): The collection to get the object from."),
     objectId: z.string().describe("(string): The ID of the object to get."),
   }),
-  execute: (knockClient, config) => async (params) => {
+  execute: (knockClient, _config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
     return await publicClient.objects.get(params.collection, params.objectId);
   },
@@ -59,24 +52,16 @@ const createOrUpdateObject = KnockTool({
       .describe(
         "(string): The environment to create or update the object in. Defaults to `development`."
       ),
-    collection: z
-      .string()
-      .describe("(string): The collection to create or update the object in."),
-    objectId: z
-      .string()
-      .describe("(string): The ID of the object to create or update."),
+    collection: z.string().describe("(string): The collection to create or update the object in."),
+    objectId: z.string().describe("(string): The ID of the object to create or update."),
     properties: z
       .record(z.string(), z.any())
       .optional()
       .describe("(object): The properties to set on the object."),
   }),
-  execute: (knockClient, config) => async (params) => {
+  execute: (knockClient, _config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
-    return await publicClient.objects.set(
-      params.collection,
-      params.objectId,
-      params.properties
-    );
+    return await publicClient.objects.set(params.collection, params.objectId, params.properties);
   },
 });
 
@@ -94,15 +79,9 @@ const subscribeUsersToObject = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to subscribe the user to. Defaults to `development`."
-      ),
-    collection: z
-      .string()
-      .describe("(string): The collection to subscribe the user to."),
-    objectId: z
-      .string()
-      .describe("(string): The ID of the object to subscribe the user to."),
+      .describe("(string): The environment to subscribe the user to. Defaults to `development`."),
+    collection: z.string().describe("(string): The collection to subscribe the user to."),
+    objectId: z.string().describe("(string): The ID of the object to subscribe the user to."),
     userIds: z
       .array(z.string())
       .describe(
@@ -111,13 +90,9 @@ const subscribeUsersToObject = KnockTool({
   }),
   execute: (knockClient, config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
-    return await publicClient.objects.addSubscriptions(
-      params.collection,
-      params.objectId,
-      {
-        recipients: params.userIds ?? [config.userId],
-      }
-    );
+    return await publicClient.objects.addSubscriptions(params.collection, params.objectId, {
+      recipients: params.userIds ?? [config.userId],
+    });
   },
 });
 
@@ -134,27 +109,17 @@ const unsubscribeUsersFromObject = KnockTool({
       .describe(
         "(string): The environment to unsubscribe the user from. Defaults to `development`."
       ),
-    collection: z
-      .string()
-      .describe("(string): The collection to unsubscribe the user from."),
-    objectId: z
-      .string()
-      .describe("(string): The ID of the object to unsubscribe the user from."),
+    collection: z.string().describe("(string): The collection to unsubscribe the user from."),
+    objectId: z.string().describe("(string): The ID of the object to unsubscribe the user from."),
     userIds: z
       .array(z.string())
-      .describe(
-        "(array): The IDs of the users to unsubscribe from the object."
-      ),
+      .describe("(array): The IDs of the users to unsubscribe from the object."),
   }),
   execute: (knockClient, config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
-    return await publicClient.objects.deleteSubscriptions(
-      params.collection,
-      params.objectId,
-      {
-        recipients: params.userIds ?? [config.userId],
-      }
-    );
+    return await publicClient.objects.deleteSubscriptions(params.collection, params.objectId, {
+      recipients: params.userIds ?? [config.userId],
+    });
   },
 });
 
@@ -168,9 +133,5 @@ export const objects = {
 
 export const permissions = {
   read: ["listObjects", "getObject"],
-  manage: [
-    "createOrUpdateObject",
-    "subscribeUsersToObject",
-    "unsubscribeUsersFromObject",
-  ],
+  manage: ["createOrUpdateObject", "subscribeUsersToObject", "unsubscribeUsersFromObject"],
 };

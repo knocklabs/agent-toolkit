@@ -1,5 +1,6 @@
-import { Knock } from "@knocklabs/node";
 import KnockMgmt from "@knocklabs/mgmt";
+import { Knock } from "@knocklabs/node";
+
 import { Config } from "../types.js";
 
 const serviceTokensToApiClients: Record<string, Record<string, Knock>> = {};
@@ -13,8 +14,7 @@ const createKnockClient = (config: Config) => {
 
   return Object.assign(client, {
     publicApi: async (environmentSlug?: string): Promise<Knock> => {
-      const environment =
-        environmentSlug ?? config.environment ?? "development";
+      const environment = environmentSlug ?? config.environment ?? "development";
 
       // If the client already exists for this service token and environment, return it
       if (serviceTokensToApiClients?.[config.serviceToken]?.[environment]) {

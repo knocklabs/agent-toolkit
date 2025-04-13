@@ -1,8 +1,9 @@
+import { KnockClient } from "../lib/knock-client.js";
 import type { KnockTool } from "../lib/knock-tool.js";
 import { allTools } from "../lib/tools/index.js";
-import { KnockMcpServer } from "./adapter.js";
 import { Config } from "../types.js";
-import { KnockClient } from "../lib/knock-client.js";
+
+import { KnockMcpServer } from "./adapter.js";
 
 type CreateKnockMcpServerParams = {
   /**
@@ -29,7 +30,5 @@ export const createKnockMcpServer = async (
 ): Promise<KnockMcpServer> => {
   const { tools, knockClient, config } = params;
 
-  return Promise.resolve(
-    new KnockMcpServer(knockClient, config, tools || Object.values(allTools))
-  );
+  return Promise.resolve(new KnockMcpServer(knockClient, config, tools || Object.values(allTools)));
 };

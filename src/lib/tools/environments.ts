@@ -1,4 +1,5 @@
 import { Environment } from "@knocklabs/mgmt/resources/environments.js";
+
 import { KnockTool } from "../knock-tool.js";
 
 /**
@@ -9,9 +10,7 @@ type SerializedEnvironment = {
   name: string;
 };
 
-function serializeEnvironmentResponse(
-  environment: Environment
-): SerializedEnvironment {
+function serializeEnvironmentResponse(environment: Environment): SerializedEnvironment {
   return {
     slug: environment.slug,
     name: environment.name,
@@ -24,7 +23,7 @@ const listEnvironments = KnockTool({
   description: `
   Lists all environments available, returning the slug and name of each environment. Use this tool when you need to see what environments are available.
   `,
-  execute: (knockClient) => async (params) => {
+  execute: (knockClient) => async (_params) => {
     const allEnvironments: SerializedEnvironment[] = [];
     for await (const environment of knockClient.environments.list()) {
       allEnvironments.push(serializeEnvironmentResponse(environment));

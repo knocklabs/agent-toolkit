@@ -1,6 +1,7 @@
-import { z } from "zod";
-import { KnockTool } from "../knock-tool.js";
 import { MessageType } from "@knocklabs/mgmt/resources/message-types.js";
+import { z } from "zod";
+
+import { KnockTool } from "../knock-tool.js";
 
 /**
  * A slimmed down version of the MessageType resource that is easier to work with in the LLM.
@@ -12,9 +13,7 @@ type SerializedMessageType = {
   variants: string[];
 };
 
-function serializeMessageTypeResponse(
-  messageType: MessageType
-): SerializedMessageType {
+function serializeMessageTypeResponse(messageType: MessageType): SerializedMessageType {
   return {
     key: messageType.key,
     name: messageType.name,
@@ -31,9 +30,7 @@ const listMessageTypes = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to list message types for. Defaults to `development`."
-      ),
+      .describe("(string): The environment to list message types for. Defaults to `development`."),
   }),
   execute: (knockClient, config) => async (params) => {
     const allMessageTypes: SerializedMessageType[] = [];
@@ -155,10 +152,7 @@ const createOrUpdateMessageType = KnockTool({
       .string()
       .describe("(string): The key of the message type to create or update."),
     name: z.string().describe("(string): The name of the message type."),
-    description: z
-      .string()
-      .optional()
-      .describe("(string): The description of the message type."),
+    description: z.string().optional().describe("(string): The description of the message type."),
     preview: z
       .string()
       .optional()
@@ -170,10 +164,7 @@ const createOrUpdateMessageType = KnockTool({
         z.object({
           key: z.string().describe("(string): The key of the variant."),
           name: z.string().describe("(string): The name of the variant."),
-          description: z
-            .string()
-            .optional()
-            .describe("(string): The description of the variant."),
+          description: z.string().optional().describe("(string): The description of the variant."),
           fields: z
             .array(
               z.object({
@@ -184,10 +175,7 @@ const createOrUpdateMessageType = KnockTool({
                     "(string): The type of the field. One of `text`, `textarea`, `button`, `markdown`, `select`, `multi_select`, `image`."
                   ),
                 label: z.string().describe("(string): The label of the field."),
-                settings: z
-                  .object({})
-                  .optional()
-                  .describe("(object): The settings of the field."),
+                settings: z.object({}).optional().describe("(object): The settings of the field."),
               })
             )
             .describe("(array): The fields of the variant."),

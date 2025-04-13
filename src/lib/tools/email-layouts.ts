@@ -1,6 +1,7 @@
 import { EmailLayout } from "@knocklabs/mgmt/resources/email-layouts.js";
-import { KnockTool } from "../knock-tool.js";
 import { z } from "zod";
+
+import { KnockTool } from "../knock-tool.js";
 
 /**
  * A slimmed down version of the EmailLayout resource that is easier to work with in the LLM.
@@ -10,9 +11,7 @@ type SerializedEmailLayout = {
   name: string;
 };
 
-function serializeEmailLayoutResponse(
-  emailLayout: EmailLayout
-): SerializedEmailLayout {
+function serializeEmailLayoutResponse(emailLayout: EmailLayout): SerializedEmailLayout {
   return {
     key: emailLayout.key,
     name: emailLayout.name,
@@ -29,9 +28,7 @@ const listEmailLayouts = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to list email layouts for. Defaults to `development`."
-      ),
+      .describe("(string): The environment to list email layouts for. Defaults to `development`."),
   }),
   execute: (knockClient, config) => async (params) => {
     const allEmailLayouts: SerializedEmailLayout[] = [];
