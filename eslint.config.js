@@ -67,14 +67,7 @@ export default [
       "import/no-unresolved": "error",
 
       // Prettier rules
-      "prettier/prettier": ["error", {
-        "singleQuote": false,
-        "semi": true,
-        "trailingComma": "es5",
-        "printWidth": 100,
-        "tabWidth": 2,
-        "useTabs": false
-      }]
+      "prettier/prettier": "error"
     },
     settings: {
       "import/resolver": {

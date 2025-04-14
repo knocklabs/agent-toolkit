@@ -22,14 +22,14 @@ vi.mock("../tools/index.js", () => ({
   },
 }));
 
+import { ToolkitConfig } from "../../types.js";
+import { KnockTool } from "../knock-tool.js";
 import {
   filterTools,
   getToolsWithPermissions,
   getToolsByPermissionsInCategories,
   serializeMessageResponse,
 } from "../utils.js";
-import { KnockTool } from "../knock-tool.js";
-import { ToolkitConfig } from "../../types.js";
 
 // Mock tools data for direct use in tests
 const mockTools = {
