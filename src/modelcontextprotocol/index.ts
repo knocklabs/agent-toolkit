@@ -1,6 +1,7 @@
 import { KnockClient } from "../lib/knock-client.js";
 import type { KnockTool } from "../lib/knock-tool.js";
 import { allTools } from "../lib/tools/index.js";
+import { createWorkflowTools } from "../lib/tools/workflows-as-tools.js";
 import { Config } from "../types.js";
 
 import { KnockMcpServer } from "./adapter.js";
@@ -30,7 +31,14 @@ export const createKnockMcpServer = async (
 ): Promise<KnockMcpServer> => {
   const { tools, knockClient, config } = params;
 
-  return Promise.resolve(
-    new KnockMcpServer(knockClient, config, tools || Object.values(allTools))
-  );
+  let baseTools = tools || Object.values(allTools);
+
+  if (baseTools.some((tool) => tool.method === "list_workflows")) {
+    // If the user has requested the list workflows tool then we can assume that they will
+    // also want to use the workflow-as-tools tools.
+    const workflowTools = await createWorkflowTools(knockClient, config);
+    baseTools = [...baseTools, ...workflowTools];
+  }
+
+  return Promise.resolve(new KnockMcpServer(knockClient, config, baseTools));
 };

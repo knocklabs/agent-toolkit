@@ -5,15 +5,18 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const toolkit = createKnockToolkit({
-  serviceToken: process.env.KNOCK_SERVICE_TOKEN!,
-  permissions: {
-    users: { manage: true },
-  },
-  userId: "alan-grant",
-});
-
 (async () => {
+  const toolkit = await createKnockToolkit({
+    serviceToken: process.env.KNOCK_SERVICE_TOKEN!,
+    permissions: {
+      users: { manage: true },
+      workflows: {
+        run: ["jurassic-park-welcome"],
+      }
+    },
+    userId: "alan-grant",
+  });
+  
   const result = await generateText({
     model: openai("gpt-4o"),
     tools: {

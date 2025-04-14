@@ -39,7 +39,26 @@ export interface ToolkitConfig extends Config {
   /**
    * The permissions to use for the toolkit.
    */
-  permissions: TransformPermissions<typeof toolPermissions>;
+  permissions: TransformPermissions<typeof toolPermissions> & {
+    workflows?: {
+      /**
+       * Whether to allow reading workflows.
+       */
+      read?: boolean | undefined;
+
+      /**
+       * Whether to allow managing workflows.
+       */
+      manage?: boolean | undefined;
+
+      /**
+       * Optionally specify a list of workflow keys to allow to be run.
+       *
+       * If true, all workflows will be allowed.
+       */
+      run?: string[] | boolean | undefined;
+    };
+  };
 }
 
 export type ToolCategory = keyof typeof toolPermissions;
