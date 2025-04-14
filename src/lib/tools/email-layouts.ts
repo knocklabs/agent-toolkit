@@ -1,6 +1,7 @@
 import { EmailLayout } from "@knocklabs/mgmt/resources/email-layouts.js";
-import { KnockTool } from "../knock-tool.js";
 import { z } from "zod";
+
+import { KnockTool } from "../knock-tool.js";
 
 /**
  * A slimmed down version of the EmailLayout resource that is easier to work with in the LLM.

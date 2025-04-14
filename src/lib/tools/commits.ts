@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import { KnockTool } from "../knock-tool.js";
 
 const listCommits = KnockTool({
@@ -65,7 +66,7 @@ const promoteAllCommits = KnockTool({
       .string()
       .describe("(string): The environment to promote all commits to."),
   }),
-  execute: (knockClient, config) => async (params) => {
+  execute: (knockClient, _config) => async (params) => {
     return await knockClient.put("/v1/commits/promote", {
       body: { to_environment: params.toEnvironment },
     });

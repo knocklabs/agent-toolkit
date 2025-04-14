@@ -1,9 +1,10 @@
-import { z } from "zod";
-import { KnockTool } from "../knock-tool.js";
 import {
   Workflow,
   WorkflowUpsertParams,
 } from "@knocklabs/mgmt/resources/index.js";
+import { z } from "zod";
+
+import { KnockTool } from "../knock-tool.js";
 
 /**
  * A slimmed down version of the Workflow resource that is easier to work with in the LLM.

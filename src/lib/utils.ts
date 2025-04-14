@@ -1,7 +1,7 @@
-import { KnockTool } from "./knock-tool.js";
 import { toolPermissions, tools } from "../lib/tools/index.js";
-import { ToolkitConfig } from "../types.js";
-import { ToolCategory } from "../types.js";
+import { ToolkitConfig, ToolCategory } from "../types.js";
+
+import { KnockTool } from "./knock-tool.js";
 
 /**
  * Given a list of tools, and some config may describe the tools that should be provided to the LLM,

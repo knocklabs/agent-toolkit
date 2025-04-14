@@ -1,6 +1,7 @@
-import { z } from "zod";
-import { KnockTool } from "../knock-tool.js";
 import { MessageType } from "@knocklabs/mgmt/resources/message-types.js";
+import { z } from "zod";
+
+import { KnockTool } from "../knock-tool.js";
 
 /**
  * A slimmed down version of the MessageType resource that is easier to work with in the LLM.

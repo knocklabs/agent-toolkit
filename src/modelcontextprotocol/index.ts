@@ -1,8 +1,9 @@
+import { KnockClient } from "../lib/knock-client.js";
 import type { KnockTool } from "../lib/knock-tool.js";
 import { allTools } from "../lib/tools/index.js";
-import { KnockMcpServer } from "./adapter.js";
 import { Config } from "../types.js";
-import { KnockClient } from "../lib/knock-client.js";
+
+import { KnockMcpServer } from "./adapter.js";
 
 type CreateKnockMcpServerParams = {
   /**

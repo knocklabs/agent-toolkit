@@ -1,7 +1,9 @@
-import { ToolCategory, ToolkitConfig } from "../types.js";
-import { getToolsByPermissionsInCategories } from "../lib/utils.js";
-import { createKnockClient } from "../lib/knock-client.js";
 import { ToolSet } from "ai";
+
+import { createKnockClient } from "../lib/knock-client.js";
+import { getToolsByPermissionsInCategories } from "../lib/utils.js";
+import { ToolCategory, ToolkitConfig } from "../types.js";
+
 import { knockToolToAiTool } from "./tool-converter.js";
 
 const createKnockToolkit = (config: ToolkitConfig) => {

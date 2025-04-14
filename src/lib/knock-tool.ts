@@ -1,6 +1,8 @@
 import type { ZodObject } from "zod";
 import { z } from "zod";
+
 import { Config } from "../types.js";
+
 import { KnockClient } from "./knock-client.js";
 
 export interface KnockToolDefinition {

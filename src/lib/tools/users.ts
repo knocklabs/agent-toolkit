@@ -1,5 +1,6 @@
-import { z } from "zod";
 import { User } from "@knocklabs/node";
+import { z } from "zod";
+
 import { KnockTool } from "../knock-tool.js";
 import { serializeMessageResponse } from "../utils.js";
 function maybeHideUserData(user: User, hideUserData: boolean = false) {

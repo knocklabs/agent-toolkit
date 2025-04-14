@@ -1,9 +1,10 @@
 import type { Tool } from "ai";
 import { tool } from "ai";
+import { z } from "zod";
+
 import { KnockClient } from "../lib/knock-client.js";
 import { KnockTool } from "../lib/knock-tool.js";
 import { Config } from "../types.js";
-import { z } from "zod";
 
 /**
  * Convert a KnockTool to an AI Tool, ready to pass to the AI SDK.

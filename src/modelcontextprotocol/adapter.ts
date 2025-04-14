@@ -1,8 +1,9 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+
+import { KnockClient } from "../lib/knock-client.js";
 import type { KnockTool } from "../lib/knock-tool.js";
 import { Config } from "../types.js";
-import { KnockClient } from "../lib/knock-client.js";
 
 export class KnockMcpServer extends McpServer {
   constructor(knockClient: KnockClient, config: Config, tools: KnockTool[]) {

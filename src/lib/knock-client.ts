@@ -1,5 +1,6 @@
-import { Knock } from "@knocklabs/node";
 import KnockMgmt from "@knocklabs/mgmt";
+import { Knock } from "@knocklabs/node";
+
 import { Config } from "../types.js";
 
 const serviceTokensToApiClients: Record<string, Record<string, Knock>> = {};

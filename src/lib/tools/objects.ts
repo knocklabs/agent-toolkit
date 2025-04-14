@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import { KnockTool } from "../knock-tool.js";
 
 const listObjects = KnockTool({
@@ -17,7 +18,7 @@ const listObjects = KnockTool({
       .string()
       .describe("(string): The collection to list objects from."),
   }),
-  execute: (knockClient, config) => async (params) => {
+  execute: (knockClient, _config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
     return await publicClient.objects.list(params.collection);
   },
@@ -40,7 +41,7 @@ const getObject = KnockTool({
       .describe("(string): The collection to get the object from."),
     objectId: z.string().describe("(string): The ID of the object to get."),
   }),
-  execute: (knockClient, config) => async (params) => {
+  execute: (knockClient, _config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
     return await publicClient.objects.get(params.collection, params.objectId);
   },
@@ -70,7 +71,7 @@ const createOrUpdateObject = KnockTool({
       .optional()
       .describe("(object): The properties to set on the object."),
   }),
-  execute: (knockClient, config) => async (params) => {
+  execute: (knockClient, _config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
     return await publicClient.objects.set(
       params.collection,
