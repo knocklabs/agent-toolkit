@@ -1,7 +1,9 @@
 import { toolPermissions, tools } from "../lib/tools/index.js";
 import { ToolkitConfig, ToolCategory } from "../types.js";
 
+import { KnockClient } from "./knock-client.js";
 import { KnockTool } from "./knock-tool.js";
+import { createWorkflowTools } from "./tools/workflows-as-tools.js";
 
 /**
  * Given a list of tools, and some config may describe the tools that should be provided to the LLM,
@@ -59,7 +61,7 @@ export function filterTools(
  */
 export function getToolsWithPermissions(
   category: keyof typeof toolPermissions,
-  categoryPermissions: Record<string, boolean | undefined>
+  categoryPermissions: Record<string, boolean | string[] | undefined>
 ) {
   // Return all of the tools for the category that have permission
   const toolsInCategory = tools[category] as Record<string, KnockTool>;
@@ -72,7 +74,10 @@ export function getToolsWithPermissions(
   // If it's `true`, then find all of the tools that have that permission
   return Object.entries(categoryPermissions).reduce(
     (acc: KnockTool[], [permissionType, hasPermission]) => {
-      if (hasPermission) {
+      if (
+        (Array.isArray(hasPermission) && hasPermission.length > 0) ||
+        hasPermission === true
+      ) {
         return acc.concat(
           toolPermissionsInCategory[permissionType].map(
             (toolName) => toolsInCategory[toolName]
@@ -88,13 +93,17 @@ export function getToolsWithPermissions(
 /**
  * Given a config, return a list of tools for each category that the user has permission to use.
  *
+ * If the user has run permissions for workflows, then we need to get the workflow triggers tools,
+ * and add them to the list of tools for the workflows category.
+ *
  * @param config - The config to use
  * @returns A list of tools for each category that the user has permission to use
  */
-export function getToolsByPermissionsInCategories(
+export async function getToolsByPermissionsInCategories(
+  knockClient: KnockClient,
   config: ToolkitConfig
-): Record<ToolCategory, KnockTool[]> {
-  return Object.keys(config.permissions).reduce(
+): Promise<Record<ToolCategory, KnockTool[]>> {
+  const toolsByCategory = Object.keys(config.permissions).reduce(
     (acc, category) => {
       const categoryKey = category as ToolCategory;
       const categoryPermissions = config.permissions[categoryKey];
@@ -108,6 +117,34 @@ export function getToolsByPermissionsInCategories(
       return acc;
     },
     {} as Record<ToolCategory, KnockTool[]>
+  );
+
+  // If the user has run permissions for workflows, then we need to get the workflow triggers tools,
+  // and add them to the list of tools for the workflows category.
+  if (config.permissions.workflows?.run) {
+    const workflowTools = await createWorkflowTools(knockClient, config);
+    toolsByCategory.workflows = [
+      ...toolsByCategory.workflows,
+      ...workflowTools,
+    ];
+  }
+
+  return toolsByCategory;
+}
+
+/**
+ * Given a list of tools, return a map of tools by method name.
+ *
+ * @param tools - The tools to serialize
+ * @returns A map of tools by method name
+ */
+export function getToolMap(tools: KnockTool[]) {
+  return tools.reduce(
+    (acc, tool) => {
+      acc[tool.method] = tool;
+      return acc;
+    },
+    {} as Record<string, KnockTool>
   );
 }
 

@@ -5,56 +5,80 @@ import {
 } from "openai/resources.mjs";
 
 import { createKnockClient } from "../lib/knock-client.js";
-import { KnockTool } from "../lib/knock-tool.js";
-import { getToolsByPermissionsInCategories } from "../lib/utils.js";
+import { getToolMap, getToolsByPermissionsInCategories } from "../lib/utils.js";
 import { ToolCategory, ToolkitConfig } from "../types.js";
 
 import { knockToolToChatCompletionTool } from "./tool-converter.js";
-
-const createKnockToolkit = (config: ToolkitConfig) => {
+/**
+ * Creates a Knock toolkit for use with the OpenAI API.
+ *
+ * When the `config.permissions.workflows.run` is set, then workflow triggers for
+ * the specified workflows will be included in the returned tools.
+ *
+ * You can also specify a list of workflow keys to include in the returned tools, should you wish to
+ * limit the set of workflows that are available.
+ *
+ * @example
+ * ```ts
+ * const toolkit = createKnockToolkit({
+ *   permissions: {
+ *     workflows: { run: true },
+ *   },
+ * });
+ * ```
+ *
+ * @param config - The configuration to use for the toolkit
+ * @returns A toolkit for use with the OpenAI API
+ */
+const createKnockToolkit = async (config: ToolkitConfig) => {
   const knockClient = createKnockClient(config);
-  const allowedToolsByCategory = getToolsByPermissionsInCategories(config);
-
-  const toolsByMethod = Object.values(allowedToolsByCategory)
-    .flat()
-    .reduce(
-      (acc, tool) => ({ ...acc, [tool.method]: tool }),
-      {} as Record<string, KnockTool>
-    );
+  const allowedToolsByCategory = await getToolsByPermissionsInCategories(
+    knockClient,
+    config
+  );
+  const allTools = Object.values(allowedToolsByCategory).flat();
+  const toolsByMethod = getToolMap(allTools);
 
   return {
     /**
-     * Get all tools as a flat list.
+     * Get all tools as a flat list. When the `config.permissions.workflows.run` is set, then workflow triggers for
+     * the specified workflows will be included in the returned tools.
      *
      * @returns An array of all tools
      */
-    getAllTools: (): ChatCompletionTool[] =>
-      Object.values(toolsByMethod).map((t) => knockToolToChatCompletionTool(t)),
+    getAllTools: (): ChatCompletionTool[] => {
+      return allTools.map((t) => knockToolToChatCompletionTool(t));
+    },
 
     /**
-     * Get all tools for a specific category.
+     * Get all tools for a specific category. When the `config.permissions.workflows.run` is set, then workflow triggers for
+     * the specified workflows will be included in the returned tools.
      *
-     * @param category - The category of too  ls to get
+     * @param category - The category of tools to get
      * @returns An array of tools for the given category
      */
-    getTools: (category: ToolCategory): ChatCompletionTool[] =>
-      allowedToolsByCategory[category].map((t) =>
+    getTools: (category: ToolCategory): ChatCompletionTool[] => {
+      return allowedToolsByCategory[category].map((t) =>
         knockToolToChatCompletionTool(t)
-      ),
+      );
+    },
 
     /**
-     * Get a map of all tools by method name.
+     * Get a map of all tools by method name. When the `config.permissions.workflows.run` is set, then workflow triggers for
+     * the specified workflows will be included in the returned tools.
      *
      * @returns A map of all tools by method name
      */
-    getToolMap: () =>
-      Object.entries(toolsByMethod).reduce(
+    getToolMap: (): Record<string, ChatCompletionTool> => {
+      return Object.entries(toolsByMethod).reduce(
         (acc, [method, tool]) => {
           acc[method] = knockToolToChatCompletionTool(tool);
           return acc;
         },
         {} as Record<string, ChatCompletionTool>
-      ),
+      );
+    },
+
     /**
      * Handle a tool call from the OpenAI API. Call this to invoke the tool.
      *

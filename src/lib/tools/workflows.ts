@@ -89,7 +89,7 @@ const triggerWorkflow = KnockTool({
   description: `
   Trigger a workflow for one or more recipients, which may produce one or more messages for each recipient depending on the workflow's steps.
 
-  Use this tool when you need to trigger a workflow to send a notification across the channels configured for the workflow. The workflow must be committed in the environment for you to trigger it.
+  Use this tool when you need to trigger a workflow to send a notification across the channels configured for the workflow. 
 
   When recipients aren't provided, the workflow will be triggered for the current user specified in the config.
 

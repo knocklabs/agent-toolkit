@@ -21,4 +21,21 @@ const knockToolToAiTool = (
   });
 };
 
-export { knockToolToAiTool };
+/**
+ * Convert a list of KnockTools to an AI ToolSet, ready to pass to the AI SDK.
+ */
+const knockToolsToToolSet = (
+  knockClient: KnockClient,
+  config: Config,
+  knockTools: KnockTool[]
+) => {
+  return knockTools.reduce(
+    (acc, tool) => {
+      acc[tool.method] = knockToolToAiTool(knockClient, config, tool);
+      return acc;
+    },
+    {} as Record<string, Tool>
+  );
+};
+
+export { knockToolToAiTool, knockToolsToToolSet };
