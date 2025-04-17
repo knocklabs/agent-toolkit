@@ -1,5 +1,11 @@
 # @knocklabs/agent-toolkit
 
+## 0.1.9
+
+### Patch Changes
+
+- 76694be: fix: workflow as tool empty recipients
+
 ## 0.1.8
 
 ### Patch Changes
