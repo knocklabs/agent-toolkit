@@ -54,7 +54,7 @@ function workflowAsTool(workflow: Workflow) {
       const publicClient = await knockClient.publicApi(params.environment);
 
       const result = await publicClient.workflows.trigger(workflow.key, {
-        recipients: [params.userId ?? config.userId],
+        recipients: params.recipients ?? [config.userId],
         actor: params.actor,
         data: params.data,
         tenant: params.tenant ?? config.tenantId,
