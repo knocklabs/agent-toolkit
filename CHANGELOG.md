@@ -1,5 +1,12 @@
 # @knocklabs/agent-toolkit
 
+## 0.1.8
+
+### Patch Changes
+
+- d9ebfc6: feat: introduce workflows as tools
+- 8d8f47d: chore: project cleanup
+
 ## 0.1.7
 
 ### Patch Changes
