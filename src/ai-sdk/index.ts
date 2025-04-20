@@ -1,5 +1,15 @@
-import { Tool, ToolSet } from "ai";
+import { Tool, ToolExecutionOptions, ToolSet } from "ai";
 
+import {
+  handleMessageInteraction,
+  triggerHumanInTheLoopWorkflow,
+} from "../lib/human-in-the-loop/index.js";
+import {
+  DeferredToolCall,
+  DeferredToolCallConfig,
+  KnockOutboundWebhookEvent,
+  DeferredToolCallInteractionResult,
+} from "../lib/human-in-the-loop/types.js";
 import { createKnockClient } from "../lib/knock-client.js";
 import { getToolMap, getToolsByPermissionsInCategories } from "../lib/utils.js";
 import { ToolCategory, ToolkitConfig } from "../types.js";
@@ -10,6 +20,17 @@ type KnockToolkit = {
   getAllTools: () => ToolSet;
   getTools: (category: ToolCategory) => ToolSet;
   getToolMap: () => Record<string, Tool>;
+  requireHumanInput: (
+    toolsToWrap: ToolSet,
+    inputConfig: DeferredToolCallConfig
+  ) => ToolSet;
+  resumeToolExecution: (
+    toolInteraction: DeferredToolCall
+  ) => PromiseLike<unknown>;
+  wrappedToolsRequiringInput: () => Map<string, Tool>;
+  handleMessageInteraction: (
+    event: KnockOutboundWebhookEvent
+  ) => DeferredToolCallInteractionResult | null;
 };
 
 /**
@@ -45,6 +66,8 @@ const createKnockToolkit = async (
   );
   const allTools = Object.values(allowedToolsByCategory).flat();
   const toolsByMethod = getToolMap(allTools);
+
+  const wrappedToolsRequiringInput = new Map<string, Tool>();
 
   return Promise.resolve({
     /**
@@ -87,6 +110,91 @@ const createKnockToolkit = async (
         {} as Record<string, Tool>
       );
     },
+
+    /**
+     * Wraps one or more tools to require human input.
+     *
+     * @param toolsToWrap - The tools to wrap
+     * @param inputConfig - The configuration to use for the HITL request
+     */
+    requireHumanInput: (
+      toolsToWrap: ToolSet,
+      inputConfig: DeferredToolCallConfig
+    ): ToolSet => {
+      const wrappedTools: Record<string, Tool> = {};
+
+      for (const [method, toolToWrap] of Object.entries(toolsToWrap)) {
+        // Keep a reference to the original tool so we can use it later
+        wrappedToolsRequiringInput.set(method, toolToWrap);
+
+        Object.assign(toolToWrap, {
+          execute: async (input: any, options: ToolExecutionOptions) => {
+            const toolExecution = {
+              method,
+              args: input,
+              extra: options as unknown as Record<string, unknown>,
+            };
+
+            const result = await triggerHumanInTheLoopWorkflow({
+              knockClient,
+              config,
+              toolCall: toolExecution,
+              inputConfig,
+            });
+
+            return result;
+          },
+        });
+
+        wrappedTools[method] = toolToWrap;
+      }
+
+      return wrappedTools;
+    },
+
+    /**
+     * Returns any tools that were wrapped with `requireHumanInput`.
+     *
+     * @returns A map of wrapped tools that require human input
+     */
+    wrappedToolsRequiringInput: () => wrappedToolsRequiringInput,
+
+    /**
+     * Resumes the execution of a tool that required human input.
+     *
+     * @param toolInteraction - The tool interaction to resume
+     * @returns A promise that resolves to the result of the tool execution
+     */
+    resumeToolExecution: (
+      toolInteraction: DeferredToolCall
+    ): PromiseLike<unknown> => {
+      const tool = wrappedToolsRequiringInput.get(toolInteraction.method);
+
+      if (!tool) {
+        throw new Error(
+          `Tool "${toolInteraction.method}" not found. Did you forget to wrap the tool with requireHumanInput?`
+        );
+      }
+
+      if (!tool.execute) {
+        throw new Error(
+          `Tool "${toolInteraction.method}" does not have an execute method. Nothing to resume.`
+        );
+      }
+
+      return tool.execute(
+        toolInteraction.args,
+        toolInteraction.extra as unknown as ToolExecutionOptions
+      );
+    },
+
+    /**
+     * Handles a message interaction event by parsing it into a well-known format.
+     *
+     * @param event - The message interaction event
+     * @returns An deferred tool call, or null if the event is not a message interaction
+     */
+    handleMessageInteraction,
   });
 };
 
