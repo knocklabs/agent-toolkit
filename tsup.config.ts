@@ -9,6 +9,7 @@ export default defineConfig((overrideOptions) => {
     entry: [
       "src/ai-sdk/index.ts",
       "src/openai/index.ts",
+      "src/langchain/index.ts",
       "src/modelcontextprotocol/index.ts",
       "src/modelcontextprotocol/local-server.ts",
     ],

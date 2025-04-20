@@ -1,9 +1,10 @@
-import { createKnockClient } from "@/lib/knock-client";
-import { getToolsByPermissionsInCategories } from "@/lib/utils";
-import { getToolMap } from "@/lib/utils";
-import { ToolCategory, ToolkitConfig } from "@/types";
-import { knockToolToLangchainTool } from "./tool-converter";
 import { DynamicStructuredTool } from "@langchain/core/tools";
+
+import { createKnockClient } from "@/lib/knock-client";
+import { getToolsByPermissionsInCategories, getToolMap } from "@/lib/utils";
+import { ToolCategory, ToolkitConfig } from "@/types";
+
+import { knockToolToLangchainTool } from "./tool-converter";
 
 type KnockToolkit = {
   getAllTools: () => DynamicStructuredTool[];
@@ -13,11 +14,13 @@ type KnockToolkit = {
 
 /**
  * Create a toolkit for use with the LangChain framework.
- * 
+ *
  * @param config - The configuration to use for the toolkit
  * @returns A toolkit for use with the LangChain framework
  */
-const createKnockToolkit = async (config: ToolkitConfig): Promise<KnockToolkit> => {
+const createKnockToolkit = async (
+  config: ToolkitConfig
+): Promise<KnockToolkit> => {
   const knockClient = createKnockClient({
     serviceToken: process.env.KNOCK_SERVICE_TOKEN!,
   });
@@ -33,26 +36,30 @@ const createKnockToolkit = async (config: ToolkitConfig): Promise<KnockToolkit> 
   return Promise.resolve({
     /**
      * Get all tools as list.
-     * 
+     *
      * @returns A list of all tools
      */
     getAllTools: (): DynamicStructuredTool[] => {
-      return allTools.map((tool) => knockToolToLangchainTool(knockClient, config, tool));
+      return allTools.map((tool) =>
+        knockToolToLangchainTool(knockClient, config, tool)
+      );
     },
 
     /**
      * Get all tools for a specific category.
-     * 
+     *
      * @param category - The category of tools to get
      * @returns A list of tools for the given category
      */
     getTools: (category: ToolCategory): DynamicStructuredTool[] => {
-      return allowedToolsByCategory[category].map((tool) => knockToolToLangchainTool(knockClient, config, tool));
+      return allowedToolsByCategory[category].map((tool) =>
+        knockToolToLangchainTool(knockClient, config, tool)
+      );
     },
 
     /**
      * Get a map of all tools by method name.
-     * 
+     *
      * @returns A map of all tools by method name
      */
     getToolMap: (): Record<string, DynamicStructuredTool> => {
@@ -68,4 +75,3 @@ const createKnockToolkit = async (config: ToolkitConfig): Promise<KnockToolkit> 
 };
 
 export { createKnockToolkit };
-

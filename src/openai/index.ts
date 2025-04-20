@@ -14,7 +14,9 @@ type KnockToolkit = {
   getAllTools: () => ChatCompletionTool[];
   getTools: (category: ToolCategory) => ChatCompletionTool[];
   getToolMap: () => Record<string, ChatCompletionTool>;
-  handleToolCall: (toolCall: ChatCompletionMessageToolCall) => Promise<ChatCompletionToolMessageParam>;
+  handleToolCall: (
+    toolCall: ChatCompletionMessageToolCall
+  ) => Promise<ChatCompletionToolMessageParam>;
 };
 
 /**
@@ -38,7 +40,9 @@ type KnockToolkit = {
  * @param config - The configuration to use for the toolkit
  * @returns A toolkit for use with the OpenAI API
  */
-const createKnockToolkit = async (config: ToolkitConfig): Promise<KnockToolkit> => {
+const createKnockToolkit = async (
+  config: ToolkitConfig
+): Promise<KnockToolkit> => {
   const knockClient = createKnockClient(config);
   const allowedToolsByCategory = await getToolsByPermissionsInCategories(
     knockClient,

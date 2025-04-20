@@ -29,6 +29,10 @@
       "types": "./dist/ai-sdk/index.d.ts",
       "default": "./dist/ai-sdk/index.js"
     },
+    "./langchain": {
+      "types": "./dist/langchain/index.d.ts",
+      "default": "./dist/langchain/index.js"
+    },
     "./modelcontextprotocol": {
       "types": "./dist/modelcontextprotocol/index.d.ts",
       "default": "./dist/modelcontextprotocol/index.js"
