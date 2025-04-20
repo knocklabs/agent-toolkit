@@ -11,6 +11,7 @@
   - [Model Context Protocol (MCP)](#model-context-protocol-mcp)
   - [AI SDK](#ai-sdk)
   - [OpenAI](#openai)
+  - [Langchain](#langchain)
 
 ## Getting started
 
@@ -23,6 +24,7 @@ Using the Knock agent toolkit allows you to build powerful agent systems that ar
 The Knock Agent Toolkit provides three main entry points:
 
 - `@knocklabs/agent-toolkit/ai-sdk`: Helpers for integrating with Vercel's AI SDK.
+- `@knocklabs/agent-tookkit/langchain`: Helpers for integrating with [Langchain's JS SDK](https://github.com/langchain-ai/langchainjs).
 - `@knocklabs/agent-toolkit/openai`: Helpers for integrating with the OpenAI SDK.
 - `@knocklabs/agent-toolkit/modelcontextprotocol`: Low level helpers for integrating with the Model Context Protocol (MCP).
 
@@ -84,7 +86,6 @@ npm install @knocklabs/agent-toolkit
 import { createKnockToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
 import { openai } from "@ai-sdk/openai";
 import { streamText } from "ai";
-import { auth } from "@clerk/nextjs/server";
 import { systemPrompt } from "@/lib/ai/prompts";
 
 export const maxDuration = 30;
@@ -132,25 +133,89 @@ import OpenAI from "openai";
 
 const openai = new OpenAI();
 
-const toolkit = await createKnockToolkit({
-  serviceToken: "kst_12345",
-  permissions: {
-    // Set the permissions of the tools to expose
-    workflows: { read: true, run: true, manage: true },
-  },
-});
+async function main() {
+  const toolkit = await createKnockToolkit({
+    serviceToken: "kst_12345",
+    permissions: {
+      // Set the permissions of the tools to expose
+      workflows: { read: true, run: true, manage: true },
+    },
+  });
 
-const completion = await openai.chat.completions.create({
-  model: "gpt-4o",
-  messages,
-  // The tools given here are determined by the `permissions`
-  // list above in the configuration. For instance, here we're only
-  // allowing the workflows
-  tools: toolkit.getAllTools(),
-});
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages,
+    // The tools given here are determined by the `permissions`
+    // list above in the configuration. For instance, here we're only
+    // allowing the workflows
+    tools: toolkit.getAllTools(),
+  });
 
-// Execute the tool calls
-const toolMessages = await Promise.all(
-  message.tool_calls.map((tc) => toolkit.handleToolCall(tc))
-);
+  // Execute the tool calls
+  const toolMessages = await Promise.all(
+    message.tool_calls.map((tc) => toolkit.handleToolCall(tc))
+  );
+}
+
+main();
+```
+
+### Langchain
+
+The agent toolkit provides a `createKnockToolkit` under the `/langchain` path for easily integrating into the Lanchain JS SDK and returning tools ready for use.
+
+1. Install the package:
+
+```
+npm install @knocklabs/agent-toolkit
+```
+
+2. Import the `createKnockToolkit` helper, configure it, and use it in your LLM calling:
+
+```typescript
+import { createKnockToolkit } from '@knocklabs/agent-toolkit/langchain';
+import { ChatOpenAI } from '@langchain/openai';
+import { HumanMessage, SystemMessage } from '@langchain/core/messages';
+import { LangChainAdapter } from 'ai';
+
+const systemPrompt = `You are a helpful assistant.`;
+
+export const maxDuration = 30;
+
+export async function POST(req: Request) {
+  const { prompt } = await req.json();
+  // Optional - get the auth context from the request
+  const authContext = await auth.protect();
+
+  // Instantiate a new Knock toolkit
+  const toolkit = await createKnockToolkit({
+    serviceToken: "kst_12345",
+    permissions: {
+      // (optional but recommended): Set the permissions of the tools to expose
+      workflows: { read: true, run: true, manage: true },
+    },
+  });
+
+  const model = new ChatOpenAI({ model: 'gpt-4o', temperature: 0 });
+
+  const modelWithTools = model.bindTools(toolkit.getAllTools());
+
+  const messages = [new SystemMessage(systemPrompt), new HumanMessage(prompt)];
+  const aiMessage = await modelWithTools.invoke(messages);
+  messages.push(aiMessage);
+
+  for (const toolCall of aiMessage.tool_calls || []) {
+    // Call the selected tool by its `name`
+    const selectedTool = toolkit.getToolMap()[toolCall.name];
+    const toolMessage = await selectedTool.invoke(toolCall);
+
+    messages.push(toolMessage);
+  }
+
+  // To simplify the setup, this example uses the ai-sdk langchain adapter
+  // to stream the results back to the /langchain page.
+  // For more details, see: https://sdk.vercel.ai/providers/adapters/langchain
+  const stream = await modelWithTools.stream(messages);
+  return LangChainAdapter.toDataStreamResponse(stream);
+}
 ```
