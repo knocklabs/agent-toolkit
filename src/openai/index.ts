@@ -9,6 +9,14 @@ import { getToolMap, getToolsByPermissionsInCategories } from "../lib/utils.js";
 import { ToolCategory, ToolkitConfig } from "../types.js";
 
 import { knockToolToChatCompletionTool } from "./tool-converter.js";
+
+type KnockToolkit = {
+  getAllTools: () => ChatCompletionTool[];
+  getTools: (category: ToolCategory) => ChatCompletionTool[];
+  getToolMap: () => Record<string, ChatCompletionTool>;
+  handleToolCall: (toolCall: ChatCompletionMessageToolCall) => Promise<ChatCompletionToolMessageParam>;
+};
+
 /**
  * Creates a Knock toolkit for use with the OpenAI API.
  *
@@ -20,7 +28,7 @@ import { knockToolToChatCompletionTool } from "./tool-converter.js";
  *
  * @example
  * ```ts
- * const toolkit = createKnockToolkit({
+ * const toolkit = await createKnockToolkit({
  *   permissions: {
  *     workflows: { run: true },
  *   },
@@ -30,7 +38,7 @@ import { knockToolToChatCompletionTool } from "./tool-converter.js";
  * @param config - The configuration to use for the toolkit
  * @returns A toolkit for use with the OpenAI API
  */
-const createKnockToolkit = async (config: ToolkitConfig) => {
+const createKnockToolkit = async (config: ToolkitConfig): Promise<KnockToolkit> => {
   const knockClient = createKnockClient(config);
   const allowedToolsByCategory = await getToolsByPermissionsInCategories(
     knockClient,
@@ -39,7 +47,7 @@ const createKnockToolkit = async (config: ToolkitConfig) => {
   const allTools = Object.values(allowedToolsByCategory).flat();
   const toolsByMethod = getToolMap(allTools);
 
-  return {
+  return Promise.resolve({
     /**
      * Get all tools as a flat list. When the `config.permissions.workflows.run` is set, then workflow triggers for
      * the specified workflows will be included in the returned tools.
@@ -103,7 +111,7 @@ const createKnockToolkit = async (config: ToolkitConfig) => {
         content: result,
       } as ChatCompletionToolMessageParam;
     },
-  };
+  });
 };
 
 export { createKnockToolkit };

@@ -6,6 +6,12 @@ import { ToolCategory, ToolkitConfig } from "../types.js";
 
 import { knockToolsToToolSet, knockToolToAiTool } from "./tool-converter.js";
 
+type KnockToolkit = {
+  getAllTools: () => ToolSet;
+  getTools: (category: ToolCategory) => ToolSet;
+  getToolMap: () => Record<string, Tool>;
+};
+
 /**
  * Creates a Knock toolkit for use with the AI SDK.
  *
@@ -29,7 +35,7 @@ import { knockToolsToToolSet, knockToolToAiTool } from "./tool-converter.js";
  * @param config - The configuration to use for the toolkit
  * @returns A toolkit for use with the AI SDK
  */
-const createKnockToolkit = async (config: ToolkitConfig) => {
+const createKnockToolkit = async (config: ToolkitConfig): Promise<KnockToolkit> => {
   const knockClient = createKnockClient(config);
   const allowedToolsByCategory = await getToolsByPermissionsInCategories(
     knockClient,
@@ -38,14 +44,14 @@ const createKnockToolkit = async (config: ToolkitConfig) => {
   const allTools = Object.values(allowedToolsByCategory).flat();
   const toolsByMethod = getToolMap(allTools);
 
-  return {
+  return Promise.resolve({
     /**
      * Get all tools for all categories. When the `config.permissions.workflows.run` is set, then workflow triggers for
      * the specified workflows will be included in the returned tools.
      *
      * @returns A promise that resolves to a set of tools
      */
-    getAllTools: async (): Promise<ToolSet> => {
+    getAllTools: (): ToolSet => {
       return knockToolsToToolSet(knockClient, config, allTools);
     },
 
@@ -56,7 +62,7 @@ const createKnockToolkit = async (config: ToolkitConfig) => {
      * @param category - The category of tools to get
      * @returns An array of tools for the given category
      */
-    getTools: async (category: ToolCategory): Promise<ToolSet> => {
+    getTools: (category: ToolCategory): ToolSet => {
       return knockToolsToToolSet(
         knockClient,
         config,
@@ -70,7 +76,7 @@ const createKnockToolkit = async (config: ToolkitConfig) => {
      *
      * @returns A map of all tools by method name
      */
-    getToolMap: async (): Promise<Record<string, Tool>> => {
+    getToolMap: (): Record<string, Tool> => {
       return Object.entries(toolsByMethod).reduce(
         (acc, [method, tool]) => ({
           ...acc,
@@ -79,7 +85,7 @@ const createKnockToolkit = async (config: ToolkitConfig) => {
         {} as Record<string, Tool>
       );
     },
-  };
+  });
 };
 
 export { createKnockToolkit };
