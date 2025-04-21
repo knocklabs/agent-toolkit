@@ -9,6 +9,11 @@ import {
   DeferredToolCall,
   DeferredToolCallInteractionResult,
 } from "./types";
+
+function wrapToolDescription(description: string) {
+  return `${description}\n\nThis tool call is deferred. You will NOT receive a result from this tool but this is NOT an error. Do NOT retry the tool call as the result will be the same. The tool call result will be provided to you in the future.`;
+}
+
 /**
  * Triggers a human in the loop workflow.
  *
@@ -31,6 +36,7 @@ async function triggerHumanInTheLoopWorkflow({
 
   const result = await knock.workflows.trigger(inputConfig.workflow, {
     data: {
+      type: "deferred_tool_call",
       tool_call: toolCall,
       metadata: inputConfig.metadata,
     } as DeferredToolCallWorkflowData,
@@ -84,4 +90,8 @@ function handleMessageInteraction(
   };
 }
 
-export { handleMessageInteraction, triggerHumanInTheLoopWorkflow };
+export {
+  handleMessageInteraction,
+  triggerHumanInTheLoopWorkflow,
+  wrapToolDescription,
+};
