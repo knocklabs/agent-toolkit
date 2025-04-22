@@ -1,5 +1,6 @@
-import { DeferredToolCall } from "@/lib/human-in-the-loop/types";
 import { ToolInvocation } from "@ai-sdk/ui-utils";
+
+import { DeferredToolCall } from "@/lib/human-in-the-loop/types";
 
 /**
  * Convert a deferred tool call to a tool invocation. Useful when building an assistant
