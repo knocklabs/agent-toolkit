@@ -13,6 +13,7 @@ export default defineConfig((overrideOptions) => {
       "src/modelcontextprotocol/index.ts",
       "src/modelcontextprotocol/local-server.ts",
       "src/types.ts",
+      "src/human-in-the-loop.ts",
     ],
     dts: true,
     clean: true,
