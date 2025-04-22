@@ -211,4 +211,5 @@ const createKnockToolkit = async (
   });
 };
 
+export * from "./helpers.js";
 export { createKnockToolkit };

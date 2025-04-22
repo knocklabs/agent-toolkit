@@ -36,6 +36,9 @@
     "./modelcontextprotocol": {
       "types": "./dist/modelcontextprotocol/index.d.ts",
       "default": "./dist/modelcontextprotocol/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts"
     }
   },
   "bin": {

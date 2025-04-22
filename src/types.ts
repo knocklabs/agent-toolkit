@@ -62,3 +62,5 @@ export interface ToolkitConfig extends Config {
 }
 
 export type ToolCategory = keyof typeof toolPermissions;
+
+export * from "./lib/human-in-the-loop/types.js";
