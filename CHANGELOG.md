@@ -1,5 +1,14 @@
 # @knocklabs/agent-toolkit
 
+## 0.1.10
+
+### Patch Changes
+
+- 35e9fad: chore: update workflow, partial, message type tools
+- 92d46f5: feat: add langchain adapter
+- db2521d: feat: introduce hitl primitives
+- 4510773: feat: introduce --workflows option to mcp
+
 ## 0.1.9
 
 ### Patch Changes
