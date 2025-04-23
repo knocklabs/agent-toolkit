@@ -71,7 +71,7 @@ const getPartial = KnockTool({
   },
 });
 
-const upsertPartial = KnockTool({
+const createOrUpdatePartial = KnockTool({
   method: "upsert_partial",
   name: "Upsert partial",
   description: `
@@ -127,10 +127,10 @@ const upsertPartial = KnockTool({
 export const partials = {
   getPartial,
   listPartials,
-  upsertPartial,
+  createOrUpdatePartial,
 };
 
 export const permissions = {
   read: ["getPartial", "listPartials"],
-  manage: ["upsertPartial"],
+  manage: ["createOrUpdatePartial"],
 };
