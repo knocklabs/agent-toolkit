@@ -68,6 +68,12 @@ npx -y @knocklabs/agent-toolkit -p local-mcp --tools "workflows.*"
 npx -y @knocklabs/agent-toolkit -p local-mcp --tools "workflows.triggerWorkflow"
 ```
 
+If you wish to enable workflows-as-tools within the MCP server, you must set the `--workflows` flag to pass in a list of approved workflow keys to expose. This ensures that you keep the number of tools exposed to your MCP client to a minimum.
+
+```
+npx -y @knocklabs/agent-toolkit -p local-mcp --workflows comment-created activate-account
+```
+
 It's also possible to pass `environment`, `userId`, and `tenant` to the local MCP server to set default values. Use the `--help` flag to view additional server options.
 
 ### AI SDK
@@ -173,10 +179,10 @@ npm install @knocklabs/agent-toolkit
 2. Import the `createKnockToolkit` helper, configure it, and use it in your LLM calling:
 
 ```typescript
-import { createKnockToolkit } from '@knocklabs/agent-toolkit/langchain';
-import { ChatOpenAI } from '@langchain/openai';
-import { HumanMessage, SystemMessage } from '@langchain/core/messages';
-import { LangChainAdapter } from 'ai';
+import { createKnockToolkit } from "@knocklabs/agent-toolkit/langchain";
+import { ChatOpenAI } from "@langchain/openai";
+import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { LangChainAdapter } from "ai";
 
 const systemPrompt = `You are a helpful assistant.`;
 
@@ -196,7 +202,7 @@ export async function POST(req: Request) {
     },
   });
 
-  const model = new ChatOpenAI({ model: 'gpt-4o', temperature: 0 });
+  const model = new ChatOpenAI({ model: "gpt-4o", temperature: 0 });
 
   const modelWithTools = model.bindTools(toolkit.getAllTools());
 
