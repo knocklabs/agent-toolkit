@@ -23,6 +23,7 @@ const main = async () => {
     userId,
     tenantId,
     tools: patterns,
+    workflows: workflowsAsTools,
   } = await yargs(hideBin(process.argv))
     .version("0.1.0")
     .option("tools", {
@@ -32,6 +33,11 @@ const main = async () => {
       description: `List of tools to enable. Use "*" to enable all tools. Use "category" or "category.*" to enable all tools from a category. Use "category.toolName" to pick a single tool. Available categories: ${Object.keys(
         tools
       )}`,
+    })
+    .option("workflows", {
+      type: "string",
+      array: true,
+      description: `List of workflows to enable as tools in the MCP server. By default no workflows are enabled. Pass a list of workflow keys to enable those workflows as tools.`,
     })
     .option("service-token", {
       alias: "st",
@@ -44,12 +50,10 @@ const main = async () => {
       description: `The environment to operate in from your Knock account`,
     })
     .option("user-id", {
-      alias: "u",
       type: "string",
       description: `The user id to operate as`,
     })
     .option("tenant-id", {
-      alias: "t",
       type: "string",
       description: `The tenant id to operate as`,
     })
@@ -78,6 +82,7 @@ const main = async () => {
     config,
     knockClient,
     tools: filteredTools,
+    workflows: workflowsAsTools,
   });
 
   const transport = new StdioServerTransport();

@@ -21,6 +21,11 @@ type CreateKnockMcpServerParams = {
    * The config to use for the server.
    */
   config: Config;
+
+  /**
+   * The workflows to enable as tools in the MCP server.
+   */
+  workflows?: string[];
 };
 
 /**
@@ -29,14 +34,17 @@ type CreateKnockMcpServerParams = {
 export const createKnockMcpServer = async (
   params: CreateKnockMcpServerParams
 ): Promise<KnockMcpServer> => {
-  const { tools, knockClient, config } = params;
+  const { tools, knockClient, config, workflows } = params;
 
   let baseTools = tools || Object.values(allTools);
 
-  if (baseTools.some((tool) => tool.method === "list_workflows")) {
-    // If the user has requested the list workflows tool then we can assume that they will
-    // also want to use the workflow-as-tools tools.
-    const workflowTools = await createWorkflowTools(knockClient, config);
+  if (workflows && Array.isArray(workflows) && workflows.length > 0) {
+    const workflowTools = await createWorkflowTools(
+      knockClient,
+      config,
+      workflows
+    );
+
     baseTools = [...baseTools, ...workflowTools];
   }
 
