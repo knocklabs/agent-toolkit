@@ -36,6 +36,13 @@
     "./modelcontextprotocol": {
       "types": "./dist/modelcontextprotocol/index.d.ts",
       "default": "./dist/modelcontextprotocol/index.js"
+    },
+    "./human-in-the-loop": {
+      "types": "./dist/human-in-the-loop/index.d.ts",
+      "default": "./dist/human-in-the-loop/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts"
     }
   },
   "bin": {

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "NODE_OPTIONS='--loader ts-node/esm --experimental-specifier-resolution=node' node index.ts"
+    "dev": "NODE_OPTIONS='--loader ts-node/esm --experimental-specifier-resolution=node' node hitl.ts"
   },
   "author": "",
   "license": "MIT",

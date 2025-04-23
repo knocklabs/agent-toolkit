@@ -12,6 +12,8 @@ export default defineConfig((overrideOptions) => {
       "src/langchain/index.ts",
       "src/modelcontextprotocol/index.ts",
       "src/modelcontextprotocol/local-server.ts",
+      "src/types.ts",
+      "src/human-in-the-loop.ts",
     ],
     dts: true,
     clean: true,
@@ -25,7 +27,7 @@ export default defineConfig((overrideOptions) => {
     },
     esbuildOptions(options) {
       options.alias = {
-        '@': './src'
+        "@": "./src",
       };
     },
   };

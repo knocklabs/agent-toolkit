@@ -10,9 +10,6 @@ dotenv.config();
     serviceToken: process.env.KNOCK_SERVICE_TOKEN!,
     permissions: {
       users: { manage: true },
-      workflows: {
-        run: ["jurassic-park-welcome"],
-      }
     },
     userId: "alan-grant",
   });
