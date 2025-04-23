@@ -136,44 +136,145 @@ const triggerWorkflow = KnockTool({
 });
 
 const createEmailWorkflow = KnockTool({
-  method: "create_email_workflow",
-  name: "Create email workflow",
+  method: "create_rich_email_workflow",
+  name: "Create rich email workflow",
   description: `
-  Creates a simple email workflow with a single step that sends an email to the recipient. Use this tool when you need to need to create an email notification, and you don't need to specify any additional steps. You can only create workflows in the development environment.
+  Creates a Knock workflow with a single step for sending an email. Use this tool when you're asked to create an email notification and you need to specify the content of the email.
 
-  The content of the email you supply should ONLY ever be in markdown format for simplicity. You can supply dynamic variables to the subject and body of the email using the liquid template language.
+  ## Blocks
 
-  When writing markdown, be sure to use headings (##) to separate sections of the email. Use an informal writing style, and avoid using complex language.
+  The content of the email is supplied as an array of "blocks". The simplest block is a "markdown" block, which supports content in a markdown format. That should always be your default block type. 
 
-  The following variables are available to use in the email subject and body:
+  The following block types are supported:
 
+  - \`markdown\`: A block that supports markdown content.
+  - \`html\`: A block that supports markdown content.
+  - \`image\`: A block that supports an image.
+  - \`button_set\`: A block that adds one or more buttons.
+  - \`divider\`: A block that supports a divider.
+  - \`partial\`: A block that supports rendering a shared content partial.
+
+  <example>
+  {
+    "blocks": [
+      {
+        "type": "markdown",
+        "content": "# Greetings from Knock!\nHello, {{ recipient.name }}."
+      },
+      {
+        "type": "divider"
+      },
+      {
+        "type": "button_set",
+        "buttons": [
+          {
+            "label": "Approve",
+            "action": "{{ data.primary_action_url }}",
+            "variant": "solid"
+          }
+        ]
+      }
+    ]
+  }
+  </example>
+
+  ### Markdown
+
+  When using the \`markdown\` block, you must supply a \`content\` key. The \`content\` key supports markdown.
+
+  <example>
+  {
+    "type": "markdown",
+    "content": "Hello, world!"
+  }
+  </example>
+
+  ### HTML 
+
+  The \`html\` block supports raw HTML content. This should be used sparingly, and only when you need to include custom HTML content that markdown doesn't support. When using the \`html\` block, you must supply a \`content\` key. HTML content can include liquid personalization.
+
+  ### Button sets
+
+  Button sets are a special type of block that allows you to add one or more buttons to the email. They're useful for directing users to take specific actions. Button sets support one or more buttons. You must always include at least one button in a button set.
+
+  Buttons are specified in a button set under the \`buttons\` key. Each button requires a \`label\`, \`action\`, and \`variant\`. The ONLY valid variants are \`solid\` and \`outline\`. The label and action can allowed be dynamic variables using liquid.
+
+  <example>
+  {
+    "type": "button_set",
+    "buttons": [
+      {
+        "label": "Approve",
+        "action": "https://example.com",
+        "variant": "solid"
+      }
+    ]
+  }
+  </example>
+
+  ### Image
+
+  Images are a special type of block that allows you to add an image to the email. When using the \`image\` block, you must supply a \`url\` key. The \`url\` key supports a URL to an image.
+
+  <example>
+  {
+    "type": "image",
+    "url": "https://example.com/image.png"
+  }
+  </example>
+
+  ## Personalization
+
+  If you need to include personalization, you can use liquid to include dynamic content in the email and the subject line.
+  The following variables are always available to use in liquid:
+
+  - \`recipient.id\`: The ID of the recipient.  
   - \`recipient.name\`: The name of the recipient.
   - \`recipient.email\`: The email of the recipient.
   - \`recipient.phone_number\`: The phone number of the recipient.
-  - \`tenant.id\`: The id of the tenant.
-  - \`tenant.name\`: The name of the tenant.
 
-  You can supply any other dynamic variables by referencing them under the \`data\` key in the \`data\` parameter when triggering the workflow. You add those like \`{{ data.variable_name }}\`.
+  You can supply **any** other dynamic variables you think are needed by referencing them under the \`data\` key. You add those like \`{{ data.variable_name }}\`.
 
-  You can also supply a list of categories to the workflow. These are used to categorize workflows for notification preferences. Categories should be supplied as lowercase strings in kebab case.
+  <example>
+  # Hello, {{ recipient.name }}
 
-  Once you've created the workflow, you should ask if you should commit the changes to the environment.
+  This is a dynamic message: 
+  
+  > {{ data.message }}
+  </example>
+
+  ## Liquid helpers
+
+  You have access to a full suite of liquid helpers to help you perform common templating tasks. The full list of helper is available here: https://docs.knock.app/designing-workflows/template-editor/reference-liquid-helpers.
+
+  <example>
+  Hello, {{ recipient.name | split: " " | first | default: "there" }}
+  </example>
+
+  ## Partials
+
+  If you need to reuse content across multiple emails, you can create or reference an existing partial and reference it in the email. You should only use partials if you're instructed to do so.
+
+  When you do need to use a partial in an email, you can use the \`partial\` block and then set the \`key\` to the key of the partial you want to use. If the partial requires any variables, you pass those in the \`attrs\` key.
+
+  ## Writing style
+
+  Unless asked otherwise, you should write content for the email in a concise and formal writing style. Do NOT use complex language or try to over explain. Keep the subject line to 8 words or less.
   `,
   parameters: z.object({
-    environment: z
+    name: z.string().describe("(string): The name of the workflow."),
+    description: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to create the workflow in. Defaults to `development`."
-      ),
-    workflowKey: z.string().describe("(string): The key of the workflow."),
-    name: z.string().describe("(string): The name of the workflow."),
+      .describe("(string): The description of the workflow."),
     categories: z
       .array(z.string())
       .optional()
       .describe("(array): The categories to add to the workflow."),
+    blocks: z
+      .array(z.any())
+      .describe("(array): The blocks to add to the workflow."),
     subject: z.string().describe("(string): The subject of the email."),
-    body: z.string().describe("(string): The body of the email."),
   }),
   execute: (knockClient, config) => async (params) => {
     const emailChannelsPage = await knockClient.channels.list();
@@ -186,9 +287,10 @@ const createEmailWorkflow = KnockTool({
     }
 
     const workflowParams: WorkflowUpsertParams = {
-      environment: params.environment ?? config.environment ?? "development",
+      environment: config.environment ?? "development",
       workflow: {
         name: params.name,
+        description: params.description,
         categories: params.categories ?? [],
         steps: [
           {
@@ -199,13 +301,7 @@ const createEmailWorkflow = KnockTool({
                 layout_key: "default",
               },
               subject: params.subject,
-              visual_blocks: [
-                // @ts-ignore
-                {
-                  type: "markdown",
-                  content: params.body,
-                },
-              ],
+              visual_blocks: params.blocks,
             },
             name: "Email",
             ref: "email_1",

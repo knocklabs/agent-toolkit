@@ -51,98 +51,47 @@ const createOrUpdateMessageType = KnockTool({
   method: "create_or_update_message_type",
   name: "Create or update message type",
   description: `
-  Create or update a message type. A message type is a schema that defines fields available to an editor within Knock. Message types always have at least one variant, that MUST be named "default".
-  
-  Use this tool when you need to create a new message type, or update an existing message type. You must pass the FULL message type to this tool if you're going to update an existing message type.
+  Create or update a message type. A message type is a schema that defines fields available to an editor within Knock. Message types always have at least one variant, that MUST be named "default". Use this tool when you need to create a new message type, or update an existing message type.
 
-  The preview is a string of HTML that will be rendered in the Knock UI as a representation of the message type. It is shared across all variants. It supports liquid, where the field name is available as a variable, so a field named "text" will be rendered as {{ text }}.
+  ## Schema and fields
+
+  The schema defines the fields available to an editor within Knock. A variant should have at least one field. Fields can be of different types, including: text, markdown, select, multi-select, image, and button.
+
+  Each field must have a key, label, and type. Some fields like \`select\` and \`multi_select\` have additional settings that can be used to configure the field.
 
   <example>
-   <description>
-    Create a new message type for a banner component that has a text and an action URL.
-   </description>
-   <input>
-    {
-      "messageTypeKey": "banner",
-      "name": "Banner",
-      "description": "A banner component that has a text and an action URL.",
-      "preview": "<div>{{ text }}</div>",
-      "variants": [
-        {
-          "key": "default",
-          "name": "Default",
-          "fields": [
-            {
-              "key": "text",
-              "type": "text",
-              "label": "Text",
-              "settings": {
-                "max_length": 100,
-              },
-            },
-            {
-              "key": "action_url",
-              "type": "text",
-              "label": "Action URL",
-              "settings": {
-                "placeholder": "https://example.com",
-              },
-            }
-          ]
-        }
-      ]
-    }
-   </input>
+  {
+    "key": "text",
+    "label": "Text",
+    "type": "text",
   </example>
+
   <example>
-   <description>
-    Create a message type for a card component that has an icon type, title, body, and a single action button.
-   </description>
-   <input>
-    {
-      "messageTypeKey": "card",
-      "name": "Card",
-      "description": "A single-action card component.",
-      "preview": "
-        <div>
-          <h2>{{ title }}</h2>
-          <p>{{ body }}</p>
-          <button>Action</button>
-        </div>
-      ",
-      "variants": [
+  {
+    "key": "select",
+    "label": "Select",
+    "type": "select",
+    "settings": {
+      "options": [
         {
-          "key": "default",
-          "name": "Default",
-          "fields": [
-            {
-              "key": "icon_type",
-              "type": "select",
-              "label": "Icon type",
-              "settings": {
-                "options": [
-                  {
-                    "value": "warning",
-                    "label": "Warning",
-                  },
-                ]
-              },
-            },
-            {
-              "key": "description",
-              "type": "markdown",
-              "label": "Description",
-            },
-            {
-              "key": "action_button",
-              "type": "button",
-              "label": "Action button",
-            },
-          ]
-        }
-      ]
-    }
-   </input>
+          "value": "option1",
+          "label": "Option 1",
+        },
+      ],
+    },
+  }
+  </example>
+
+  ## Preview templates
+
+  The preview is a string of HTML that will be rendered in the Knock UI as a representation of the message type. It is shared across all variants. It supports liquid, where the field name is available as a variable, so a field named "text" will be rendered as {{ text }}. All fields should be included in the preview.
+
+  You can make an educated guess as to what the preview template should look like based on the name of the message type and the fields. You can use plain CSS to style the preview by supplying a style tag in the preview. Use simple selectors like .class-name to style elements.
+
+  <example>
+  {
+    "preview": "<style>div { color: red; }</style>\n<div>Hello there, {{ text }}</div>"
+  }
   </example>
   `,
   parameters: z.object({
