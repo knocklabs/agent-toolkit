@@ -1,5 +1,11 @@
 # @knocklabs/agent-toolkit
 
+## 0.1.11
+
+### Patch Changes
+
+- 7da5a15: feat: add new workflow tools
+
 ## 0.1.10
 
 ### Patch Changes
