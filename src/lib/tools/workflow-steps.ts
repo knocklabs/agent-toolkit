@@ -14,6 +14,11 @@ import { KnockTool } from "../knock-tool.js";
 import { serializeWorkflowResponse } from "./workflows";
 import { KnockClient } from "../knock-client.js";
 
+function generateStepRef(stepType: string) {
+  const randomString = Math.random().toString(36).substring(2, 7).toUpperCase();
+  return `${stepType}_${randomString}`;
+}
+
 async function updateWorkflowWithStep(
   knockClient: KnockClient,
   workflow: Workflow,
@@ -210,6 +215,7 @@ const createEmailStepInWorkflow = KnockTool({
           subject: params.subject,
           visual_blocks: params.blocks,
         } as EmailTemplate,
+        ref: generateStepRef("email"),
       },
       config.environment ?? "development"
     );
@@ -256,6 +262,7 @@ const createSmsStepInWorkflow = KnockTool({
         template: {
           text_body: params.content,
         } as SMSTemplate,
+        ref: generateStepRef("sms"),
       },
       config.environment ?? "development"
     );
@@ -308,6 +315,7 @@ const createPushStepInWorkflow = KnockTool({
           title: params.title,
           text_body: params.content,
         } as PushTemplate,
+        ref: generateStepRef("push"),
       },
       config.environment ?? "development"
     );
@@ -363,6 +371,7 @@ const createInAppFeedStepInWorkflow = KnockTool({
           action_url: params.actionUrl,
           markdown_body: params.body,
         } as InAppFeedTemplate,
+        ref: generateStepRef("in_app_feed"),
       },
       config.environment ?? "development"
     );
@@ -411,6 +420,7 @@ const createChatStepInWorkflow = KnockTool({
         template: {
           markdown_body: params.body,
         } as ChatTemplate,
+        ref: generateStepRef("chat"),
       },
       config.environment ?? "development"
     );
@@ -423,7 +433,7 @@ const createDelayStepInWorkflow = KnockTool({
   description: `
   Creates a delay step in a workflow. Use this tool when you're asked to add a delay to the workflow that pauses, or waits for a period of time before continuing.
 
-  You ONLY need to pass the workflow key to this tool and the email step will be added to the end of the workflow's steps array.
+  ${SHARED_PROMPTS.workflow}
   
   Delays are specified in "unit" and "value" pairs. The only valid units are "seconds", "minutes", "hours", and "days".
 
@@ -464,6 +474,7 @@ const createDelayStepInWorkflow = KnockTool({
                 unit: params.delayUnit,
               },
             },
+            ref: generateStepRef("delay"),
           },
         ],
       },
@@ -478,6 +489,60 @@ const createDelayStepInWorkflow = KnockTool({
   },
 });
 
+const createBatchStepInWorkflow = KnockTool({
+  method: "create_batch_step_in_workflow",
+  name: "Create batch step in workflow",
+  description: `
+  Creates a batch step in a workflow. Use this tool when you're asked to create a batch step or asked to add digesting behavior to a workflow. The batch step collects multiple workflow triggers for a single recipient over a period of time and then flushes the content to the next step.
+
+  ${SHARED_PROMPTS.workflow}
+
+  Batch windows are specified in "unit" and "value" pairs. The only valid units are "seconds", "minutes", "hours", and "days".
+
+  <example>
+  {
+    "batchWindow": {
+      "value": 5,
+      "unit": "minutes"
+    }
+  }
+  </example>
+  `,
+  parameters: z.object({
+    workflowKey: z
+      .string()
+      .describe("(string): The key of the workflow to add the step to."),
+    batchWindow: z.object({
+      value: z.number().describe("(number): The value of the batch window."),
+      unit: z
+        .enum(["seconds", "minutes", "hours", "days"])
+        .describe("(enum): The unit of the batch window."),
+    }),
+  }),
+  execute: (knockClient, config) => async (params) => {
+    const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
+      environment: config.environment ?? "development",
+    });
+
+    return await updateWorkflowWithStep(
+      knockClient,
+      workflow,
+      // @ts-expect-error
+      {
+        type: "batch",
+        settings: {
+          batch_window: {
+            value: params.batchWindow.value,
+            unit: params.batchWindow.unit,
+          },
+        },
+        ref: generateStepRef("batch"),
+      },
+      config.environment ?? "development"
+    );
+  },
+});
+
 const workflowStepTools = {
   // Channel steps
   createEmailStepInWorkflow,
@@ -488,6 +553,7 @@ const workflowStepTools = {
 
   // Function steps
   createDelayStepInWorkflow,
+  createBatchStepInWorkflow,
 };
 
 export { workflowStepTools };
