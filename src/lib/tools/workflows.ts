@@ -149,6 +149,11 @@ const createWorkflow = KnockTool({
       .describe(
         "(string): The environment to create the workflow in. Defaults to `development`."
       ),
+    workflowKey: z
+      .string()
+      .describe(
+        "(string): The key of the workflow to create. Only use a kebab-case string with no spaces or special characters."
+      ),
     name: z.string().describe("(string): The name of the workflow."),
     description: z
       .string()
