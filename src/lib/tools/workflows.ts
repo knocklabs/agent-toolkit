@@ -1,15 +1,14 @@
-import {
-  Workflow,
-  WorkflowUpsertParams,
-} from "@knocklabs/mgmt/resources/index.js";
+import { Workflow } from "@knocklabs/mgmt/resources/index.js";
 import { z } from "zod";
 
 import { KnockTool } from "../knock-tool.js";
 
+import { workflowStepTools } from "./workflow-steps.js";
+
 /**
  * A slimmed down version of the Workflow resource that is easier to work with in the LLM.
  */
-type SerializedWorkflow = {
+export type SerializedWorkflow = {
   key: string;
   name: string;
   description: string | undefined;
@@ -17,7 +16,9 @@ type SerializedWorkflow = {
   schema: Record<string, unknown> | undefined;
 };
 
-function serializeWorkflowResponse(workflow: Workflow): SerializedWorkflow {
+export function serializeWorkflowResponse(
+  workflow: Workflow
+): SerializedWorkflow {
   return {
     key: workflow.key,
     name: workflow.name,
@@ -135,185 +136,37 @@ const triggerWorkflow = KnockTool({
   },
 });
 
-const createEmailWorkflow = KnockTool({
-  method: "create_rich_email_workflow",
-  name: "Create rich email workflow",
+const createWorkflow = KnockTool({
+  method: "create_workflow",
+  name: "Create workflow",
   description: `
-  Creates a Knock workflow with a single step for sending an email. Use this tool when you're asked to create an email notification and you need to specify the content of the email.
-
-  ## Blocks
-
-  The content of the email is supplied as an array of "blocks". The simplest block is a "markdown" block, which supports content in a markdown format. That should always be your default block type. 
-
-  The following block types are supported:
-
-  - \`markdown\`: A block that supports markdown content.
-  - \`html\`: A block that supports markdown content.
-  - \`image\`: A block that supports an image.
-  - \`button_set\`: A block that adds one or more buttons.
-  - \`divider\`: A block that supports a divider.
-  - \`partial\`: A block that supports rendering a shared content partial.
-
-  <example>
-  {
-    "blocks": [
-      {
-        "type": "markdown",
-        "content": "# Greetings from Knock!\nHello, {{ recipient.name }}."
-      },
-      {
-        "type": "divider"
-      },
-      {
-        "type": "button_set",
-        "buttons": [
-          {
-            "label": "Approve",
-            "action": "{{ data.primary_action_url }}",
-            "variant": "solid"
-          }
-        ]
-      }
-    ]
-  }
-  </example>
-
-  ### Markdown
-
-  When using the \`markdown\` block, you must supply a \`content\` key. The \`content\` key supports markdown.
-
-  <example>
-  {
-    "type": "markdown",
-    "content": "Hello, world!"
-  }
-  </example>
-
-  ### HTML 
-
-  The \`html\` block supports raw HTML content. This should be used sparingly, and only when you need to include custom HTML content that markdown doesn't support. When using the \`html\` block, you must supply a \`content\` key. HTML content can include liquid personalization.
-
-  ### Button sets
-
-  Button sets are a special type of block that allows you to add one or more buttons to the email. They're useful for directing users to take specific actions. Button sets support one or more buttons. You must always include at least one button in a button set.
-
-  Buttons are specified in a button set under the \`buttons\` key. Each button requires a \`label\`, \`action\`, and \`variant\`. The ONLY valid variants are \`solid\` and \`outline\`. The label and action can allowed be dynamic variables using liquid.
-
-  <example>
-  {
-    "type": "button_set",
-    "buttons": [
-      {
-        "label": "Approve",
-        "action": "https://example.com",
-        "variant": "solid"
-      }
-    ]
-  }
-  </example>
-
-  ### Image
-
-  Images are a special type of block that allows you to add an image to the email. When using the \`image\` block, you must supply a \`url\` key. The \`url\` key supports a URL to an image.
-
-  <example>
-  {
-    "type": "image",
-    "url": "https://example.com/image.png"
-  }
-  </example>
-
-  ## Personalization
-
-  If you need to include personalization, you can use liquid to include dynamic content in the email and the subject line.
-  The following variables are always available to use in liquid:
-
-  - \`recipient.id\`: The ID of the recipient.  
-  - \`recipient.name\`: The name of the recipient.
-  - \`recipient.email\`: The email of the recipient.
-  - \`recipient.phone_number\`: The phone number of the recipient.
-
-  You can supply **any** other dynamic variables you think are needed by referencing them under the \`data\` key. You add those like \`{{ data.variable_name }}\`.
-
-  <example>
-  # Hello, {{ recipient.name }}
-
-  This is a dynamic message: 
-  
-  > {{ data.message }}
-  </example>
-
-  ## Liquid helpers
-
-  You have access to a full suite of liquid helpers to help you perform common templating tasks. The full list of helper is available here: https://docs.knock.app/designing-workflows/template-editor/reference-liquid-helpers.
-
-  <example>
-  Hello, {{ recipient.name | split: " " | first | default: "there" }}
-  </example>
-
-  ## Partials
-
-  If you need to reuse content across multiple emails, you can create or reference an existing partial and reference it in the email. You should only use partials if you're instructed to do so.
-
-  When you do need to use a partial in an email, you can use the \`partial\` block and then set the \`key\` to the key of the partial you want to use. If the partial requires any variables, you pass those in the \`attrs\` key.
-
-  ## Writing style
-
-  Unless asked otherwise, you should write content for the email in a concise and formal writing style. Do NOT use complex language or try to over explain. Keep the subject line to 8 words or less.
+  Create a new workflow, which is used to control the flow of notifications. Use this tool when you're asked to create a new workflow, or you need to create a new workflow before adding a step to it.
   `,
   parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to create the workflow in. Defaults to `development`."
+      ),
     name: z.string().describe("(string): The name of the workflow."),
     description: z
       .string()
-      .optional()
       .describe("(string): The description of the workflow."),
     categories: z
       .array(z.string())
-      .optional()
       .describe("(array): The categories to add to the workflow."),
-    blocks: z
-      .array(z.any())
-      .describe("(array): The blocks to add to the workflow."),
-    subject: z.string().describe("(string): The subject of the email."),
   }),
   execute: (knockClient, config) => async (params) => {
-    const emailChannelsPage = await knockClient.channels.list();
-    const emailChannels = emailChannelsPage.entries.filter(
-      (channel) => channel.type === "email"
-    );
-
-    if (emailChannels.length === 0) {
-      throw new Error("No email channels found");
-    }
-
-    const workflowParams: WorkflowUpsertParams = {
+    const result = await knockClient.workflows.upsert(params.workflowKey, {
       environment: config.environment ?? "development",
       workflow: {
         name: params.name,
         description: params.description,
         categories: params.categories ?? [],
-        steps: [
-          {
-            type: "channel",
-            channel_key: emailChannels[0].key,
-            template: {
-              settings: {
-                layout_key: "default",
-              },
-              subject: params.subject,
-              visual_blocks: params.blocks,
-            },
-            name: "Email",
-            ref: "email_1",
-          },
-        ],
+        steps: [],
       },
-    };
-
-    const result = await knockClient.workflows.upsert(
-      params.workflowKey,
-      workflowParams
-    );
+    });
 
     return serializeWorkflowResponse(result.workflow);
   },
@@ -373,12 +226,15 @@ export const workflows = {
   listWorkflows,
   getWorkflow,
   triggerWorkflow,
-  createEmailWorkflow,
+  createWorkflow,
+  ...workflowStepTools,
   createOneOffWorkflowSchedule,
 };
 
 export const permissions = {
   read: ["listWorkflows", "getWorkflow"],
-  manage: ["createEmailWorkflow", "createOneOffWorkflowSchedule"],
+  manage: ["createWorkflow", "createOneOffWorkflowSchedule"].concat(
+    ...Object.keys(workflowStepTools)
+  ),
   run: ["triggerWorkflow"],
 };
