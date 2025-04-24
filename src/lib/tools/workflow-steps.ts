@@ -10,9 +10,10 @@ import {
 } from "@knocklabs/mgmt/resources/index.js";
 import { z } from "zod";
 
-import { KnockTool } from "../knock-tool.js";
-import { serializeWorkflowResponse } from "./workflows";
 import { KnockClient } from "../knock-client.js";
+import { KnockTool } from "../knock-tool.js";
+
+import { serializeWorkflowResponse } from "./workflows";
 
 function generateStepRef(stepType: string) {
   const randomString = Math.random().toString(36).substring(2, 7).toUpperCase();

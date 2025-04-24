@@ -1,9 +1,9 @@
 import { Workflow } from "@knocklabs/mgmt/resources/index.js";
 import { z } from "zod";
 
-import { workflowStepTools } from "./workflow-steps.js";
-
 import { KnockTool } from "../knock-tool.js";
+
+import { workflowStepTools } from "./workflow-steps.js";
 
 /**
  * A slimmed down version of the Workflow resource that is easier to work with in the LLM.
