@@ -1,5 +1,11 @@
 # @knocklabs/agent-toolkit
 
+## 0.1.12
+
+### Patch Changes
+
+- 359b40a: fix: workflow create method
+
 ## 0.1.11
 
 ### Patch Changes
