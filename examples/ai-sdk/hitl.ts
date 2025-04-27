@@ -13,12 +13,11 @@ dotenv.config();
   });
 
   const addTool = tool({
-    description: "Add two numbers together. ALWAYS use this tool when you are asked to do addition DO NOT assume the result.",
+    description: "Add two numbers together.",
     parameters: z.object({
       a: z.number(),
       b: z.number(),
     }),
-    // This will never be called because we're deferring the tool call to the human in the loop workflow
     execute: async ({ a, b }) => {
       console.log("Executing add tool");
       return a + b;
@@ -26,14 +25,17 @@ dotenv.config();
   });
 
   // This will defer the tool call and trigger a human in the loop workflow
-  const toolset = toolkit.requireHumanInput({ add: addTool }, {
-    workflow: "approve-tool-call",
-    recipients: ["admin_user_1"],
-  });
+  const { add: addToolWithApproval } = toolkit.requireHumanInput(
+    { add: addTool },
+    {
+      workflow: "approve-tool-call",
+      recipients: ["admin_user_1"],
+    }
+  );
 
   const result = await generateText({
     model: openai("gpt-4o"),
-    tools: { ...toolset },
+    tools: { add: addToolWithApproval },
     maxSteps: 5,
     prompt: "Add 1 and 2 together.",
   });

@@ -22,7 +22,7 @@ type KnockToolkit = {
 /**
  * Creates a Knock toolkit for use with the OpenAI API.
  *
- * When the `config.permissions.workflows.run` is set, then workflow triggers for
+ * When the `config.permissions.workflows.trigger` is set, then workflow triggers for
  * the specified workflows will be included in the returned tools.
  *
  * You can also specify a list of workflow keys to include in the returned tools, should you wish to
@@ -53,8 +53,7 @@ const createKnockToolkit = async (
 
   return Promise.resolve({
     /**
-     * Get all tools as a flat list. When the `config.permissions.workflows.run` is set, then workflow triggers for
-     * the specified workflows will be included in the returned tools.
+     * Get all tools as a flat list, including workflow triggers when workflows-as-tools are enabled.
      *
      * @returns An array of all tools
      */
@@ -63,8 +62,7 @@ const createKnockToolkit = async (
     },
 
     /**
-     * Get all tools for a specific category. When the `config.permissions.workflows.run` is set, then workflow triggers for
-     * the specified workflows will be included in the returned tools.
+     * Get all tools for a specific category, including workflow triggers when workflows-as-tools are enabled.
      *
      * @param category - The category of tools to get
      * @returns An array of tools for the given category
@@ -76,8 +74,7 @@ const createKnockToolkit = async (
     },
 
     /**
-     * Get a map of all tools by method name. When the `config.permissions.workflows.run` is set, then workflow triggers for
-     * the specified workflows will be included in the returned tools.
+     * Get a map of all tools by method name, including workflow triggers when workflows-as-tools are enabled.
      *
      * @returns A map of all tools by method name
      */

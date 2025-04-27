@@ -121,8 +121,16 @@ export async function getToolsByPermissionsInCategories(
 
   // If the user has run permissions for workflows, then we need to get the workflow triggers tools,
   // and add them to the list of tools for the workflows category.
-  if (config.permissions.workflows?.run) {
-    const workflowTools = await createWorkflowTools(knockClient, config);
+  if (
+    config.permissions.workflows &&
+    config.permissions.workflows.trigger &&
+    Array.isArray(config.permissions.workflows.trigger)
+  ) {
+    const workflowTools = await createWorkflowTools(
+      knockClient,
+      config,
+      config.permissions.workflows.trigger
+    );
     toolsByCategory.workflows = [
       ...toolsByCategory.workflows,
       ...workflowTools,
