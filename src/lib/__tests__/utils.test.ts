@@ -48,7 +48,8 @@ vi.mock("../tools/index.js", () => ({
     },
     workflows: {
       read: ["listWorkflows"],
-      run: ["triggerWorkflow"],
+      manage: ["triggerWorkflow"],
+      trigger: [],
     },
   },
 }));
@@ -207,10 +208,10 @@ describe("utils", () => {
       expect(result.users).toHaveLength(0);
     });
 
-    it("should return workflow tools when run permission is granted", async () => {
+    it("should return workflow tools when trigger permission is granted", async () => {
       const config: ToolkitConfig = {
         serviceToken: "test",
-        permissions: { workflows: { run: true } },
+        permissions: { workflows: { trigger: ["test"] } },
       };
 
       const result = await getToolsByPermissionsInCategories(
@@ -218,10 +219,8 @@ describe("utils", () => {
         config
       );
 
-      expect(result.workflows).toHaveLength(2);
-
-      expect(result.workflows[0].method).toBe("trigger_workflow");
-      expect(result.workflows[1].method).toBe("trigger_test_workflow");
+      expect(result.workflows).toHaveLength(1);
+      expect(result.workflows[0].method).toBe("trigger_test_workflow");
     });
   });
 

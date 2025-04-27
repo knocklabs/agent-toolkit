@@ -238,8 +238,10 @@ export const workflows = {
 
 export const permissions = {
   read: ["listWorkflows", "getWorkflow"],
-  manage: ["createWorkflow", "createOneOffWorkflowSchedule"].concat(
-    ...Object.keys(workflowStepTools)
-  ),
-  run: ["triggerWorkflow"],
+  manage: [
+    "createWorkflow",
+    "createOneOffWorkflowSchedule",
+    "triggerWorkflow",
+  ].concat(...Object.keys(workflowStepTools)),
+  trigger: [],
 };

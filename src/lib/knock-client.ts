@@ -8,8 +8,16 @@ const serviceTokensToApiClients: Record<string, Record<string, Knock>> = {};
 type KnockClient = ReturnType<typeof createKnockClient>;
 
 const createKnockClient = (config: Config) => {
+  const serviceToken = config.serviceToken ?? process.env.KNOCK_SERVICE_TOKEN;
+
+  if (!serviceToken) {
+    throw new Error(
+      "Service token is required. Please set the `serviceToken` property in the config or the `KNOCK_SERVICE_TOKEN` environment variable."
+    );
+  }
+
   const client = new KnockMgmt({
-    serviceToken: config.serviceToken,
+    serviceToken,
   });
 
   return Object.assign(client, {
@@ -18,8 +26,8 @@ const createKnockClient = (config: Config) => {
         environmentSlug ?? config.environment ?? "development";
 
       // If the client already exists for this service token and environment, return it
-      if (serviceTokensToApiClients?.[config.serviceToken]?.[environment]) {
-        return serviceTokensToApiClients[config.serviceToken][environment];
+      if (serviceTokensToApiClients?.[serviceToken]?.[environment]) {
+        return serviceTokensToApiClients[serviceToken][environment];
       }
 
       // Otherwise, fetch a public API key for this service token and environment
@@ -29,11 +37,11 @@ const createKnockClient = (config: Config) => {
       const knock = new Knock(api_key);
 
       // Store the client in the cache
-      if (!serviceTokensToApiClients[config.serviceToken]) {
-        serviceTokensToApiClients[config.serviceToken] = {};
+      if (!serviceTokensToApiClients[serviceToken]) {
+        serviceTokensToApiClients[serviceToken] = {};
       }
 
-      serviceTokensToApiClients[config.serviceToken][environment] = knock;
+      serviceTokensToApiClients[serviceToken][environment] = knock;
 
       return knock;
     },

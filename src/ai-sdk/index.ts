@@ -37,7 +37,7 @@ type KnockToolkit = {
  *
  * You can filter the set of tools that are available by setting the `config.permissions` property.
  *
- * When the `config.permissions.workflows.run` is set, then workflow triggers for
+ * When the `config.permissions.workflows.trigger` is set, then workflow triggers for
  * the specified workflows will be included in the returned tools.
  *
  * You can also specify a list of workflow keys to include in the returned tools, should you wish to
@@ -70,8 +70,7 @@ const createKnockToolkit = async (
 
   return Promise.resolve({
     /**
-     * Get all tools for all categories. When the `config.permissions.workflows.run` is set, then workflow triggers for
-     * the specified workflows will be included in the returned tools.
+     * Get all tools for all categories, including workflow triggers when workflows-as-tools are enabled.
      *
      * @returns A promise that resolves to a set of tools
      */
@@ -80,7 +79,7 @@ const createKnockToolkit = async (
     },
 
     /**
-     * Get all tools for a specific category. When trying to get tools for the `workflows` category and the run permission is set,
+     * Get all tools for a specific category. When trying to get tools for the `workflows` category and the trigger permission is set,
      * the workflow triggers for the specified workflows will be included in the returned tools.
      *
      * @param category - The category of tools to get
@@ -95,8 +94,7 @@ const createKnockToolkit = async (
     },
 
     /**
-     * Get a map of all tools by method name. When the `config.permissions.workflows.run` is set, then workflow triggers for
-     * the specified workflows will be included in the returned tools.
+     * Get a map of all tools by method name, including workflow triggers when workflows-as-tools are enabled.
      *
      * @returns A map of all tools by method name
      */

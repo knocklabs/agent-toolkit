@@ -19,13 +19,15 @@ The Knock Agent toolkit enables popular agent frameworks including [OpenAI](http
 
 Using the Knock agent toolkit allows you to build powerful agent systems that are capable of sending cross-channel notifications to the humans who need to be in the loop. As a developer, it also helps you build Knock integrations and manage your Knock account.
 
+You can [read more in the documentation](https://docs.knock.app/developer-tools/agent-toolkit/overview).
+
 ## API reference
 
-The Knock Agent Toolkit provides three main entry points:
+The Knock Agent Toolkit provides four main entry points:
 
-- `@knocklabs/agent-toolkit/ai-sdk`: Helpers for integrating with Vercel's AI SDK.
+- `@knocklabs/agent-toolkit/ai-sdk`: Helpers for integrating with [Vercel's AI SDK](https://sdk.vercel.ai/).
 - `@knocklabs/agent-tookkit/langchain`: Helpers for integrating with [Langchain's JS SDK](https://github.com/langchain-ai/langchainjs).
-- `@knocklabs/agent-toolkit/openai`: Helpers for integrating with the OpenAI SDK.
+- `@knocklabs/agent-toolkit/openai`: Helpers for integrating with the [OpenAI SDK](https://platform.openai.com/docs/guides/function-calling?api-mode=chat&lang=javascript).
 - `@knocklabs/agent-toolkit/modelcontextprotocol`: Low level helpers for integrating with the Model Context Protocol (MCP).
 
 ## Prerequisites

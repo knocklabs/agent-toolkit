@@ -2,9 +2,10 @@ import { toolPermissions } from "./lib/tools/index.js";
 
 export interface Config {
   /**
-   * The token to use to authenticate with the service.
+   * The token to use to authenticate with the service. If not provided, the `serviceToken`
+   * will be resolved from `KNOCK_SERVICE_TOKEN` environment variable.
    */
-  serviceToken: string;
+  serviceToken?: string | undefined;
 
   /**
    * When set calls will be made as this user.
@@ -39,7 +40,10 @@ export interface ToolkitConfig extends Config {
   /**
    * The permissions to use for the toolkit.
    */
-  permissions: TransformPermissions<typeof toolPermissions> & {
+  permissions: Omit<
+    TransformPermissions<typeof toolPermissions>,
+    "workflows"
+  > & {
     workflows?: {
       /**
        * Whether to allow reading workflows.
@@ -52,11 +56,11 @@ export interface ToolkitConfig extends Config {
       manage?: boolean | undefined;
 
       /**
-       * Optionally specify a list of workflow keys to allow to be run.
+       * Optionally specify a list of workflow keys to turn into workflow trigger tools
        *
        * If true, all workflows will be allowed.
        */
-      run?: string[] | boolean | undefined;
+      trigger?: string[] | undefined;
     };
   };
 }
