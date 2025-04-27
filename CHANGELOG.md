@@ -1,5 +1,11 @@
 # @knocklabs/agent-toolkit
 
+## 0.1.13
+
+### Patch Changes
+
+- 504e066: fix: pre-launch fixes
+
 ## 0.1.12
 
 ### Patch Changes
