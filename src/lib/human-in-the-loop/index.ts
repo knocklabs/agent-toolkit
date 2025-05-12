@@ -1,3 +1,5 @@
+import { Recipient } from "@knocklabs/node";
+
 import { Config } from "@/types";
 
 import { KnockClient } from "../knock-client";
@@ -9,7 +11,6 @@ import {
   DeferredToolCall,
   DeferredToolCallInteractionResult,
 } from "./types";
-import { Recipient } from "@knocklabs/node";
 
 function wrapToolDescription(description: string) {
   return `${description}\n\nThis tool call is deferred. You will NOT receive a result from this tool but this is NOT an error. Do NOT retry the tool call as the result will be the same. The tool call result will be provided to you in the future.`;
