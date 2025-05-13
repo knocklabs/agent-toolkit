@@ -129,6 +129,7 @@ const createKnockToolkit = async (
           description: wrapToolDescription(toolToWrap.description ?? ""),
           execute: async (input: any, options: ToolExecutionOptions) => {
             const toolExecution = {
+              id: options.toolCallId,
               method,
               args: input,
               extra: {

@@ -1,3 +1,5 @@
+import { Recipient } from "@knocklabs/node";
+
 import { Config } from "@/types";
 
 import { KnockClient } from "../knock-client";
@@ -34,16 +36,24 @@ async function triggerHumanInTheLoopWorkflow({
 }) {
   const knock = await knockClient.publicApi(config.environment);
 
+  if (inputConfig.onBeforeCallKnock) {
+    await inputConfig.onBeforeCallKnock(toolCall);
+  }
+
   const result = await knock.workflows.trigger(inputConfig.workflow, {
     data: {
       type: "deferred_tool_call",
       tool_call: toolCall,
       metadata: inputConfig.metadata,
     } as DeferredToolCallWorkflowData,
-    recipients: inputConfig.recipients,
+    recipients: inputConfig.recipients as Recipient[],
     tenant: inputConfig.tenant,
-    actor: inputConfig.actor,
+    actor: inputConfig.actor as Recipient,
   });
+
+  if (inputConfig.onAfterCallKnock) {
+    await inputConfig.onAfterCallKnock(toolCall, result);
+  }
 
   return result;
 }
@@ -77,6 +87,7 @@ function handleMessageInteraction(
     workflow: message.source.key,
     interaction: event.event_data,
     toolCall: {
+      id: messageData.tool_call.id,
       method: messageData.tool_call.method,
       args: messageData.tool_call.args,
       extra: messageData.tool_call.extra,
