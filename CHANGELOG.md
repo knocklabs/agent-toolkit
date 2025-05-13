@@ -1,5 +1,11 @@
 # @knocklabs/agent-toolkit
 
+## 0.1.14
+
+### Patch Changes
+
+- 361ac6f: feat: improve hitl methods based on real usage
+
 ## 0.1.13
 
 ### Patch Changes
