@@ -1,6 +1,6 @@
 {
   "name": "@knocklabs/agent-toolkit",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "A toolkit for working with Knock in Agent workflows.",
   "main": "src/index.js",
   "scripts": {
