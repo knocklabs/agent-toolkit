@@ -52,7 +52,7 @@ const SHARED_PROMPTS = {
   If you need to include personalization, you can use liquid to include dynamic content in the email and the subject line.
   The following variables are always available to use in liquid:
 
-  - \`recipient.id\`: The ID of the recipient.  
+  - \`recipient.id\`: The ID of the recipient.
   - \`recipient.name\`: The name of the recipient.
   - \`recipient.email\`: The email of the recipient.
   - \`recipient.phone_number\`: The phone number of the recipient.
@@ -62,8 +62,8 @@ const SHARED_PROMPTS = {
   <example>
   # Hello, {{ recipient.name }}
 
-  This is a dynamic message: 
-  
+  This is a dynamic message:
+
   > {{ data.message }}
   </example>
 
@@ -86,48 +86,52 @@ const contentTypes = z.enum([
   "partial",
 ]);
 
-const contentBlockSchema = z.union([
-  z
-    .object({
-      type: contentTypes,
-      content: z.string(),
-    })
-    .describe("A block of markdown content."),
-  z
-    .object({
-      type: contentTypes,
-      content: z.string(),
-    })
-    .describe("A block of HTML content."),
-  z
-    .object({
-      type: contentTypes,
-      url: z.string(),
-    })
-    .describe("A block that supports an image."),
-  z
-    .object({
-      type: contentTypes,
-      buttons: z.array(
-        z.object({
-          label: z.string(),
-          action: z.string(),
-          variant: z.string(),
-        })
-      ),
-    })
-    .describe("A block that adds one or more buttons."),
-  z
-    .object({
-      type: contentTypes,
-    })
-    .describe("A block that adds a divider."),
-  z.object({
-    type: contentTypes,
-    key: z.string(),
-    attrs: z.array(z.string()).optional(),
-  }),
-]);
+const contentBlockSchema = z.object({
+  type: contentTypes,
+});
+
+// const contentBlockSchema = z.union([
+//   z
+//     .object({
+//       type: contentTypes,
+//       content: z.string(),
+//     })
+//     .describe("A block of markdown content."),
+//   z
+//     .object({
+//       type: contentTypes,
+//       content: z.string(),
+//     })
+//     .describe("A block of HTML content."),
+//   z
+//     .object({
+//       type: contentTypes,
+//       url: z.string(),
+//     })
+//     .describe("A block that supports an image."),
+//   z
+//     .object({
+//       type: contentTypes,
+//       buttons: z.array(
+//         z.object({
+//           label: z.string(),
+//           action: z.string(),
+//           variant: z.string(),
+//         })
+//       ),
+//     })
+//     .describe("A block that adds one or more buttons."),
+//   z
+//     .object({
+//       type: contentTypes,
+//     })
+//     .describe("A block that adds a divider."),
+//   z.object({
+//     type: contentTypes,
+//     key: z.string(),
+//     attrs: z.array(z.string()).optional(),
+//   }),
+//]);
 
 const createEmailStepInWorkflow = KnockTool({
   method: "create_email_step_in_workflow",
@@ -139,7 +143,7 @@ const createEmailStepInWorkflow = KnockTool({
 
   ## Blocks
 
-  The content of the email is supplied as an array of "blocks". The simplest block is a "markdown" block, which supports content in a markdown format. That should always be your default block type. 
+  The content of the email is supplied as an array of "blocks". The simplest block is a "markdown" block, which supports content in a markdown format. That should always be your default block type.
 
   The following block types are supported:
 
@@ -185,7 +189,7 @@ const createEmailStepInWorkflow = KnockTool({
   }
   </example>
 
-  ### HTML 
+  ### HTML
 
   The \`html\` block supports raw HTML content. This should be used sparingly, and only when you need to include custom HTML content that markdown doesn't support. When using the \`html\` block, you must supply a \`content\` key. HTML content can include liquid personalization.
 
@@ -279,8 +283,8 @@ const createSmsStepInWorkflow = KnockTool({
   method: "create_sms_step_in_workflow",
   name: "Create sms step in workflow",
   description: `
-  Creates an SMS step in a workflow. Use this tool when you're asked to create an SMS notification and you need to specify the content of the SMS. 
-  
+  Creates an SMS step in a workflow. Use this tool when you're asked to create an SMS notification and you need to specify the content of the SMS.
+
   ${SHARED_PROMPTS.workflow}
 
   ${SHARED_PROMPTS.liquid}
@@ -380,7 +384,7 @@ const createInAppFeedStepInWorkflow = KnockTool({
   method: "create_in_app_feed_step_in_workflow",
   name: "Create in app feed step in workflow",
   description: `
-  Creates an in app feed step in a workflow. Use this tool when you're asked to create an in app feed notification and you need to specify the content of the in app feed notification.  
+  Creates an in app feed step in a workflow. Use this tool when you're asked to create an in app feed notification and you need to specify the content of the in app feed notification.
 
   ${SHARED_PROMPTS.workflow}
 
@@ -487,7 +491,7 @@ const createDelayStepInWorkflow = KnockTool({
   Creates a delay step in a workflow. Use this tool when you're asked to add a delay to the workflow that pauses, or waits for a period of time before continuing.
 
   ${SHARED_PROMPTS.workflow}
-  
+
   Delays are specified in "unit" and "value" pairs. The only valid units are "seconds", "minutes", "hours", and "days".
 
   <example>
