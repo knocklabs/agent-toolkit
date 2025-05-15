@@ -77,6 +77,58 @@ const SHARED_PROMPTS = {
   `,
 };
 
+const contentTypes = z.enum([
+  "markdown",
+  "html",
+  "image",
+  "button_set",
+  "divider",
+  "partial",
+]);
+
+const contentBlockSchema = z.union([
+  z
+    .object({
+      type: contentTypes,
+      content: z.string(),
+    })
+    .describe("A block of markdown content."),
+  z
+    .object({
+      type: contentTypes,
+      content: z.string(),
+    })
+    .describe("A block of HTML content."),
+  z
+    .object({
+      type: contentTypes,
+      url: z.string(),
+    })
+    .describe("A block that supports an image."),
+  z
+    .object({
+      type: contentTypes,
+      buttons: z.array(
+        z.object({
+          label: z.string(),
+          action: z.string(),
+          variant: z.string(),
+        })
+      ),
+    })
+    .describe("A block that adds one or more buttons."),
+  z
+    .object({
+      type: contentTypes,
+    })
+    .describe("A block that adds a divider."),
+  z.object({
+    type: contentTypes,
+    key: z.string(),
+    attrs: z.array(z.string()).optional(),
+  }),
+]);
+
 const createEmailStepInWorkflow = KnockTool({
   method: "create_email_step_in_workflow",
   name: "Create email step in workflow",
@@ -184,7 +236,7 @@ const createEmailStepInWorkflow = KnockTool({
       .string()
       .describe("(string): The key of the workflow to add the step to."),
     blocks: z
-      .array(z.any())
+      .array(contentBlockSchema)
       .describe("(array): The blocks for the email step."),
     subject: z.string().describe("(string): The subject of the email step."),
   }),
