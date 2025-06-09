@@ -22,7 +22,7 @@ const createKnockToolkit = async (
   config: ToolkitConfig
 ): Promise<KnockToolkit> => {
   const knockClient = createKnockClient({
-    serviceToken: process.env.KNOCK_SERVICE_TOKEN!,
+    serviceToken: config.serviceToken ?? process.env.KNOCK_SERVICE_TOKEN!,
   });
 
   const allowedToolsByCategory = await getToolsByPermissionsInCategories(
