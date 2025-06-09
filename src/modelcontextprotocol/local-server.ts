@@ -42,7 +42,8 @@ const main = async () => {
     .option("service-token", {
       alias: "st",
       type: "string",
-      description: `Knock service token`,
+      description: `Knock service token. Only supply this if you're not passing it via the \`KNOCK_SERVICE_TOKEN\` environment variable.`,
+      demandOption: false,
     })
     .option("environment", {
       alias: "e",
@@ -62,7 +63,9 @@ const main = async () => {
   const SERVICE_TOKEN = serviceToken || process.env.KNOCK_SERVICE_TOKEN;
 
   if (!SERVICE_TOKEN) {
-    throw new Error("Knock service token is required");
+    throw new Error(
+      "Knock service token is required. You should set it via the `KNOCK_SERVICE_TOKEN` environment variable."
+    );
   }
 
   const config: Config = {
