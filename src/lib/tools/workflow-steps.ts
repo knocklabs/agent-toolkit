@@ -86,52 +86,10 @@ const contentTypes = z.enum([
   "partial",
 ]);
 
+// TODO: Add full schema for all block types, but we need to do that without expressing it as a union type.
 const contentBlockSchema = z.object({
   type: contentTypes,
 });
-
-// const contentBlockSchema = z.union([
-//   z
-//     .object({
-//       type: contentTypes,
-//       content: z.string(),
-//     })
-//     .describe("A block of markdown content."),
-//   z
-//     .object({
-//       type: contentTypes,
-//       content: z.string(),
-//     })
-//     .describe("A block of HTML content."),
-//   z
-//     .object({
-//       type: contentTypes,
-//       url: z.string(),
-//     })
-//     .describe("A block that supports an image."),
-//   z
-//     .object({
-//       type: contentTypes,
-//       buttons: z.array(
-//         z.object({
-//           label: z.string(),
-//           action: z.string(),
-//           variant: z.string(),
-//         })
-//       ),
-//     })
-//     .describe("A block that adds one or more buttons."),
-//   z
-//     .object({
-//       type: contentTypes,
-//     })
-//     .describe("A block that adds a divider."),
-//   z.object({
-//     type: contentTypes,
-//     key: z.string(),
-//     attrs: z.array(z.string()).optional(),
-//   }),
-//]);
 
 const createEmailStepInWorkflow = KnockTool({
   method: "create_email_step_in_workflow",
