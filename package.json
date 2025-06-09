@@ -33,6 +33,10 @@
       "types": "./dist/langchain/index.d.ts",
       "default": "./dist/langchain/index.js"
     },
+    "./mastra": {
+      "types": "./dist/mastra/index.d.ts",
+      "default": "./dist/mastra/index.js"
+    },
     "./modelcontextprotocol": {
       "types": "./dist/modelcontextprotocol/index.d.ts",
       "default": "./dist/modelcontextprotocol/index.js"
@@ -86,7 +90,8 @@
   },
   "peerDependencies": {
     "ai": "^4.0.0",
-    "openai": "^4.0.0"
+    "openai": "^4.0.0",
+    "@mastra/core": "^0.10.3"
   },
   "peerDependenciesMeta": {
     "ai": {

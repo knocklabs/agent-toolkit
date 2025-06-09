@@ -1,15 +1,16 @@
-import { DynamicStructuredTool } from "@langchain/core/tools";
+import { Tool as MastraTool } from "@mastra/core/tools";
+import { z } from "zod";
 
 import { createKnockClient } from "@/lib/knock-client";
 import { getToolsByPermissionsInCategories, getToolMap } from "@/lib/utils";
 import { ToolCategory, ToolkitConfig } from "@/types";
 
-import { knockToolToLangchainTool } from "./tool-converter";
+import { knockToolToMastraTool } from "./tool-converter";
 
 type KnockToolkit = {
-  getAllTools: () => DynamicStructuredTool[];
-  getTools: (category: ToolCategory) => DynamicStructuredTool[];
-  getToolMap: () => Record<string, DynamicStructuredTool>;
+  getAllTools: () => MastraTool<z.ZodObject<any, any>>[];
+  getTools: (category: ToolCategory) => MastraTool<z.ZodObject<any, any>>[];
+  getToolMap: () => Record<string, MastraTool<z.ZodObject<any, any>>>;
 };
 
 /**
@@ -39,9 +40,9 @@ const createKnockToolkit = async (
      *
      * @returns A list of all tools
      */
-    getAllTools: (): DynamicStructuredTool[] => {
+    getAllTools: (): MastraTool<z.ZodObject<any, any>>[] => {
       return allTools.map((tool) =>
-        knockToolToLangchainTool(knockClient, config, tool)
+        knockToolToMastraTool(knockClient, config, tool)
       );
     },
 
@@ -51,9 +52,9 @@ const createKnockToolkit = async (
      * @param category - The category of tools to get
      * @returns A list of tools for the given category
      */
-    getTools: (category: ToolCategory): DynamicStructuredTool[] => {
+    getTools: (category: ToolCategory): MastraTool<z.ZodObject<any, any>>[] => {
       return allowedToolsByCategory[category].map((tool) =>
-        knockToolToLangchainTool(knockClient, config, tool)
+        knockToolToMastraTool(knockClient, config, tool)
       );
     },
 
@@ -62,13 +63,13 @@ const createKnockToolkit = async (
      *
      * @returns A map of all tools by method name
      */
-    getToolMap: (): Record<string, DynamicStructuredTool> => {
+    getToolMap: (): Record<string, MastraTool<z.ZodObject<any, any>>> => {
       return Object.entries(toolsByMethod).reduce(
         (acc, [method, tool]) => ({
           ...acc,
-          [method]: knockToolToLangchainTool(knockClient, config, tool),
+          [method]: knockToolToMastraTool(knockClient, config, tool),
         }),
-        {} as Record<string, DynamicStructuredTool>
+        {} as Record<string, MastraTool<z.ZodObject<any, any>>>
       );
     },
   });

@@ -12,6 +12,7 @@
   - [AI SDK](#ai-sdk)
   - [OpenAI](#openai)
   - [Langchain](#langchain)
+  - [Mastra](#mastra)
 
 ## Getting started
 
@@ -226,4 +227,45 @@ export async function POST(req: Request) {
   const stream = await modelWithTools.stream(messages);
   return LangChainAdapter.toDataStreamResponse(stream);
 }
+```
+
+### Mastra
+
+The agent toolkit provides a `createKnockToolkit` under the `/mastra` path for easily integrating into the Mastra framework and returning tools ready for use.
+
+1. Install the package:
+
+```
+npm install @knocklabs/agent-toolkit
+```
+
+2. Import the `createKnockToolkit` helper, configure it, and use it in your LLM calling:
+
+```typescript
+import { anthropic } from "@ai-sdk/anthropic";
+import { Agent } from "@mastra/core/agent";
+import { Memory } from "@mastra/memory";
+import { LibSQLStore } from "@mastra/libsql";
+import { createKnockToolkit } from "@knocklabs/agent-toolkit/mastra";
+
+const toolkit = await createKnockToolkit({
+  serviceToken: "knock_st_",
+  permissions: {
+    // (optional but recommended): Set the permissions of the tools to expose
+    workflows: { read: true, run: true, manage: true },
+  },
+  userId: "10",
+});
+
+export const weatherAgent = new Agent({
+  name: "Weather Agent",
+  instructions: `You are a helpful weather assistant that provides accurate weather information.`,
+  model: anthropic("claude-3-5-sonnet-20241022"),
+  tools: toolkit.getAllTools(),
+  memory: new Memory({
+    storage: new LibSQLStore({
+      url: "file:../mastra.db", // path is relative to the .mastra/output directory
+    }),
+  }),
+});
 ```
