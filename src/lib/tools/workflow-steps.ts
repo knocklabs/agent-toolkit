@@ -246,6 +246,7 @@ const createOrUpdateEmailStepInWorkflow = KnockTool({
       .describe("(string): The key of the workflow to add the step to."),
     stepRef: z
       .string()
+      .optional()
       .describe(
         "(string): The reference of the step to update. If not provided, a new step will be created."
       ),
@@ -316,6 +317,7 @@ const createOrUpdateSmsStepInWorkflow = KnockTool({
       .describe("(string): The key of the workflow to add the step to."),
     stepRef: z
       .string()
+      .optional()
       .describe(
         "(string): The reference of the step to update. If not provided, a new step will be created."
       ),
@@ -370,6 +372,7 @@ const createOrUpdatePushStepInWorkflow = KnockTool({
       .describe("(string): The key of the workflow to add the step to."),
     stepRef: z
       .string()
+      .optional()
       .describe(
         "(string): The reference of the step to update. If not provided, a new step will be created."
       ),
@@ -427,6 +430,7 @@ const createOrUpdateInAppFeedStepInWorkflow = KnockTool({
       .describe("(string): The key of the workflow to add the step to."),
     stepRef: z
       .string()
+      .optional()
       .describe(
         "(string): The reference of the step to update. If not provided, a new step will be created."
       ),
@@ -548,6 +552,7 @@ const createOrUpdateDelayStepInWorkflow = KnockTool({
       .describe("(string): The key of the workflow to add the step to."),
     stepRef: z
       .string()
+      .optional()
       .describe(
         "(string): The reference of the step to update. If not provided, a new step will be created."
       ),
@@ -617,6 +622,7 @@ const createOrUpdateBatchStepInWorkflow = KnockTool({
       .describe("(string): The key of the workflow to add the step to."),
     stepRef: z
       .string()
+      .optional()
       .describe(
         "(string): The reference of the step to update. If not provided, a new step will be created."
       ),
