@@ -26,11 +26,21 @@ async function updateWorkflowWithStep(
   step: WorkflowStep,
   environment: string
 ) {
+  let workflowSteps = workflow.steps;
+  const existingStepIdx = workflow.steps.findIndex((s) => s.ref === step.ref);
+
+  // If the step already exists, update it. Otherwise, add it to the end of the steps array.
+  if (existingStepIdx !== -1) {
+    workflowSteps[existingStepIdx] = step;
+  } else {
+    workflowSteps.push(step);
+  }
+
   const workflowParams: WorkflowUpsertParams = {
     environment,
     workflow: {
       ...workflow,
-      steps: [...workflow.steps, step],
+      steps: workflowSteps,
     },
   };
 
@@ -44,7 +54,9 @@ async function updateWorkflowWithStep(
 
 const SHARED_PROMPTS = {
   workflow: `
-  To use this tool, you MUST first create a workflow using the \`createWorkflow\` tool, or get an existing workflow using the \`getWorkflow\` tool. You ONLY need to pass the workflow key to this tool and the sms step will be added to the end of the workflow's steps array.
+  To use this tool, you MUST first create a workflow using the \`createWorkflow\` tool, or get an existing workflow using the \`getWorkflow\` tool. 
+  
+  If you are updating an existing step, you can pass the \`stepRef\` parameter to the tool. If you do not pass the \`stepRef\` parameter, a new step will be created and added to the end of the workflow's steps array. You should ONLY pass the \`stepRef\` parameter if you are updating an existing step.
   `,
   liquid: `
   ## Personalization
@@ -52,7 +64,7 @@ const SHARED_PROMPTS = {
   If you need to include personalization, you can use liquid to include dynamic content in the email and the subject line.
   The following variables are always available to use in liquid:
 
-  - \`recipient.id\`: The ID of the recipient.  
+  - \`recipient.id\`: The ID of the recipient.
   - \`recipient.name\`: The name of the recipient.
   - \`recipient.email\`: The email of the recipient.
   - \`recipient.phone_number\`: The phone number of the recipient.
@@ -62,8 +74,8 @@ const SHARED_PROMPTS = {
   <example>
   # Hello, {{ recipient.name }}
 
-  This is a dynamic message: 
-  
+  This is a dynamic message:
+
   > {{ data.message }}
   </example>
 
@@ -77,17 +89,66 @@ const SHARED_PROMPTS = {
   `,
 };
 
-const createEmailStepInWorkflow = KnockTool({
-  method: "create_email_step_in_workflow",
-  name: "Create email step in workflow",
+const contentBlockSchema = z.union([
+  z.object({
+    type: z.literal("markdown"),
+    content: z
+      .string()
+      .describe("(string): The markdown content of the block."),
+  }),
+  z.object({
+    type: z.literal("html"),
+    content: z.string().describe("(string): The HTML content of the block."),
+  }),
+  z.object({
+    type: z.literal("image"),
+    url: z.string().describe("(string): The URL of the image."),
+  }),
+  z.object({
+    type: z.literal("button_set"),
+    buttons: z
+      .array(
+        z.object({
+          label: z.string().describe("(string): The label of the button."),
+          action: z.string().describe("(string): The action of the button."),
+          variant: z
+            .enum(["solid", "outline"])
+            .default("solid")
+            .describe(
+              "(enum): The variant of the button. Defaults to `solid`."
+            ),
+        })
+      )
+      .describe("(array): The buttons for the button set."),
+  }),
+  z.object({
+    type: z.literal("divider"),
+  }),
+  z.object({
+    type: z.literal("partial"),
+    key: z.string().describe("(string): The key of the partial to use."),
+    name: z.string().describe("(string): The name of the partial."),
+    attrs: z
+      .record(z.string(), z.string())
+      .describe(
+        "(object): The attributes for the partial. ALWAYS supply an empty object when you don't know which params are required."
+      ),
+  }),
+]);
+
+const createOrUpdateEmailStepInWorkflow = KnockTool({
+  method: "upsert_workflow_email_step",
+  name: "Create or update email step in workflow",
   description: `
-  Creates an email step in a workflow. Use this tool when you're asked to create an email notification and you need to specify the content of the email.
+  Creates or updates an email step in a workflow. Use this tool when you're asked to create an email notification and you need to specify the content of the email.
 
   ${SHARED_PROMPTS.workflow}
 
+  When you're asked to create an email step, you can either set the HTML content directly or use blocks to build the email. If you're asked to set the HTML content directly, you can use the \`htmlContent\` parameter. We prefer to use blocks.
+
   ## Blocks
 
-  The content of the email is supplied as an array of "blocks". The simplest block is a "markdown" block, which supports content in a markdown format. That should always be your default block type. 
+  The content of the email is supplied as an array of "blocks". The simplest block is a "markdown" block, which supports content in a markdown format. That should always be your default block type.
 
   The following block types are supported:
 
@@ -133,7 +194,7 @@ const createEmailStepInWorkflow = KnockTool({
   }
   </example>
 
-  ### HTML 
+  ### HTML
 
   The \`html\` block supports raw HTML content. This should be used sparingly, and only when you need to include custom HTML content that markdown doesn't support. When using the \`html\` block, you must supply a \`content\` key. HTML content can include liquid personalization.
 
@@ -183,9 +244,25 @@ const createEmailStepInWorkflow = KnockTool({
     workflowKey: z
       .string()
       .describe("(string): The key of the workflow to add the step to."),
+    stepRef: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The reference of the step to update. If not provided, a new step will be created."
+      ),
+    htmlContent: z
+      .string()
+      .describe(
+        "(string): The HTML content of the email template. Use this when not setting blocks."
+      ),
     blocks: z
-      .array(z.any())
-      .describe("(array): The blocks for the email step."),
+      .array(contentBlockSchema)
+      .describe(
+        "(array): The blocks for the email step. Use this when you don't need to set HTML directly."
+      ),
+    layoutKey: z
+      .string()
+      .describe("(string): The key of the layout to use for the email step."),
     subject: z.string().describe("(string): The subject of the email step."),
   }),
   execute: (knockClient, config) => async (params) => {
@@ -211,24 +288,25 @@ const createEmailStepInWorkflow = KnockTool({
         channel_key: emailChannels[0].key,
         template: {
           settings: {
-            layout_key: "default",
+            layout_key: params.layoutKey ?? "default",
           },
           subject: params.subject,
           visual_blocks: params.blocks,
+          html_content: params.htmlContent,
         } as EmailTemplate,
-        ref: generateStepRef("email"),
+        ref: params.stepRef ?? generateStepRef("email"),
       },
       config.environment ?? "development"
     );
   },
 });
 
-const createSmsStepInWorkflow = KnockTool({
-  method: "create_sms_step_in_workflow",
-  name: "Create sms step in workflow",
+const createOrUpdateSmsStepInWorkflow = KnockTool({
+  method: "upsert_workflow_sms_step",
+  name: "Create or update sms step in workflow",
   description: `
-  Creates an SMS step in a workflow. Use this tool when you're asked to create an SMS notification and you need to specify the content of the SMS. 
-  
+  Creates an SMS step in a workflow. Use this tool when you're asked to create an SMS notification and you need to specify the content of the SMS.
+
   ${SHARED_PROMPTS.workflow}
 
   ${SHARED_PROMPTS.liquid}
@@ -237,6 +315,12 @@ const createSmsStepInWorkflow = KnockTool({
     workflowKey: z
       .string()
       .describe("(string): The key of the workflow to add the step to."),
+    stepRef: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The reference of the step to update. If not provided, a new step will be created."
+      ),
     content: z.string().describe("(string): The content of the SMS."),
   }),
   execute: (knockClient, config) => async (params) => {
@@ -263,16 +347,16 @@ const createSmsStepInWorkflow = KnockTool({
         template: {
           text_body: params.content,
         } as SMSTemplate,
-        ref: generateStepRef("sms"),
+        ref: params.stepRef ?? generateStepRef("sms"),
       },
       config.environment ?? "development"
     );
   },
 });
 
-const createPushStepInWorkflow = KnockTool({
-  method: "create_push_step_in_workflow",
-  name: "Create push step in workflow",
+const createOrUpdatePushStepInWorkflow = KnockTool({
+  method: "upsert_workflow_push_step",
+  name: "Create or update push step in workflow",
   description: `
   Creates a push step in a workflow. Use this tool when you're asked to create a push notification and you need to specify the content of the push notification.
 
@@ -286,6 +370,12 @@ const createPushStepInWorkflow = KnockTool({
     workflowKey: z
       .string()
       .describe("(string): The key of the workflow to add the step to."),
+    stepRef: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The reference of the step to update. If not provided, a new step will be created."
+      ),
     title: z.string().describe("(string): The title of the push notification."),
     content: z
       .string()
@@ -316,7 +406,7 @@ const createPushStepInWorkflow = KnockTool({
           title: params.title,
           text_body: params.content,
         } as PushTemplate,
-        ref: generateStepRef("push"),
+        ref: params.stepRef ?? generateStepRef("push"),
       },
       config.environment ?? "development"
     );
@@ -324,11 +414,11 @@ const createPushStepInWorkflow = KnockTool({
 });
 
 // TODO: Add support for action buttons, not just the action URL
-const createInAppFeedStepInWorkflow = KnockTool({
-  method: "create_in_app_feed_step_in_workflow",
-  name: "Create in app feed step in workflow",
+const createOrUpdateInAppFeedStepInWorkflow = KnockTool({
+  method: "upsert_workflow_in_app_step",
+  name: "Create or update in app feed step in workflow",
   description: `
-  Creates an in app feed step in a workflow. Use this tool when you're asked to create an in app feed notification and you need to specify the content of the in app feed notification.  
+  Creates an in app feed step in a workflow. Use this tool when you're asked to create an in app feed notification and you need to specify the content of the in app feed notification.
 
   ${SHARED_PROMPTS.workflow}
 
@@ -338,6 +428,12 @@ const createInAppFeedStepInWorkflow = KnockTool({
     workflowKey: z
       .string()
       .describe("(string): The key of the workflow to add the step to."),
+    stepRef: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The reference of the step to update. If not provided, a new step will be created."
+      ),
     actionUrl: z
       .string()
       .describe(
@@ -372,16 +468,16 @@ const createInAppFeedStepInWorkflow = KnockTool({
           action_url: params.actionUrl,
           markdown_body: params.body,
         } as InAppFeedTemplate,
-        ref: generateStepRef("in_app_feed"),
+        ref: params.stepRef ?? generateStepRef("in_app_feed"),
       },
       config.environment ?? "development"
     );
   },
 });
 
-const createChatStepInWorkflow = KnockTool({
-  method: "create_chat_step_in_workflow",
-  name: "Create chat step in workflow",
+const createOrUpdateChatStepInWorkflow = KnockTool({
+  method: "upsert_workflow_chat_step",
+  name: "Create or update chat step in workflow",
   description: `
   Creates a chat step in a workflow. Use this tool when you're asked to create a chat, Slack, Discord, or Microsoft Teams notification and you need to specify the content of the chat notification.
 
@@ -393,6 +489,11 @@ const createChatStepInWorkflow = KnockTool({
     workflowKey: z
       .string()
       .describe("(string): The key of the workflow to add the step to."),
+    stepRef: z
+      .string()
+      .describe(
+        "(string): The reference of the step to update. If not provided, a new step will be created."
+      ),
     body: z
       .string()
       .describe("(string): The markdown content of the notification."),
@@ -421,21 +522,21 @@ const createChatStepInWorkflow = KnockTool({
         template: {
           markdown_body: params.body,
         } as ChatTemplate,
-        ref: generateStepRef("chat"),
+        ref: params.stepRef ?? generateStepRef("chat"),
       },
       config.environment ?? "development"
     );
   },
 });
 
-const createDelayStepInWorkflow = KnockTool({
-  method: "create_delay_step_in_workflow",
-  name: "Create delay step in workflow",
+const createOrUpdateDelayStepInWorkflow = KnockTool({
+  method: "upsert_workflow_delay_step",
+  name: "Create or update delay step in workflow",
   description: `
   Creates a delay step in a workflow. Use this tool when you're asked to add a delay to the workflow that pauses, or waits for a period of time before continuing.
 
   ${SHARED_PROMPTS.workflow}
-  
+
   Delays are specified in "unit" and "value" pairs. The only valid units are "seconds", "minutes", "hours", and "days".
 
   <example>
@@ -449,6 +550,12 @@ const createDelayStepInWorkflow = KnockTool({
     workflowKey: z
       .string()
       .describe("(string): The key of the workflow to add the step to."),
+    stepRef: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The reference of the step to update. If not provided, a new step will be created."
+      ),
     delayValue: z.number().describe("(number): The value of the delay."),
     delayUnit: z
       .enum(["seconds", "minutes", "hours", "days"])
@@ -475,7 +582,7 @@ const createDelayStepInWorkflow = KnockTool({
                 unit: params.delayUnit,
               },
             },
-            ref: generateStepRef("delay"),
+            ref: params.stepRef ?? generateStepRef("delay"),
           },
         ],
       },
@@ -490,9 +597,9 @@ const createDelayStepInWorkflow = KnockTool({
   },
 });
 
-const createBatchStepInWorkflow = KnockTool({
-  method: "create_batch_step_in_workflow",
-  name: "Create batch step in workflow",
+const createOrUpdateBatchStepInWorkflow = KnockTool({
+  method: "upsert_workflow_batch_step",
+  name: "Create or update batch step in workflow",
   description: `
   Creates a batch step in a workflow. Use this tool when you're asked to create a batch step or asked to add digesting behavior to a workflow. The batch step collects multiple workflow triggers for a single recipient over a period of time and then flushes the content to the next step.
 
@@ -513,6 +620,12 @@ const createBatchStepInWorkflow = KnockTool({
     workflowKey: z
       .string()
       .describe("(string): The key of the workflow to add the step to."),
+    stepRef: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The reference of the step to update. If not provided, a new step will be created."
+      ),
     batchWindow: z.object({
       value: z.number().describe("(number): The value of the batch window."),
       unit: z
@@ -537,7 +650,7 @@ const createBatchStepInWorkflow = KnockTool({
             unit: params.batchWindow.unit,
           },
         },
-        ref: generateStepRef("batch"),
+        ref: params.stepRef ?? generateStepRef("batch"),
       },
       config.environment ?? "development"
     );
@@ -546,15 +659,15 @@ const createBatchStepInWorkflow = KnockTool({
 
 const workflowStepTools = {
   // Channel steps
-  createEmailStepInWorkflow,
-  createSmsStepInWorkflow,
-  createPushStepInWorkflow,
-  createInAppFeedStepInWorkflow,
-  createChatStepInWorkflow,
+  createOrUpdateEmailStepInWorkflow,
+  createOrUpdateSmsStepInWorkflow,
+  createOrUpdatePushStepInWorkflow,
+  createOrUpdateInAppFeedStepInWorkflow,
+  createOrUpdateChatStepInWorkflow,
 
   // Function steps
-  createDelayStepInWorkflow,
-  createBatchStepInWorkflow,
+  createOrUpdateDelayStepInWorkflow,
+  createOrUpdateBatchStepInWorkflow,
 };
 
 export { workflowStepTools };

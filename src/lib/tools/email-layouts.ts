@@ -9,6 +9,8 @@ import { KnockTool } from "../knock-tool.js";
 type SerializedEmailLayout = {
   key: string;
   name: string;
+  htmlContent: string;
+  textContent: string;
 };
 
 function serializeEmailLayoutResponse(
@@ -17,6 +19,8 @@ function serializeEmailLayoutResponse(
   return {
     key: emailLayout.key,
     name: emailLayout.name,
+    htmlContent: emailLayout.html_layout,
+    textContent: emailLayout.text_layout,
   };
 }
 
@@ -45,10 +49,55 @@ const listEmailLayouts = KnockTool({
   },
 });
 
+const createOrUpdateEmailLayout = KnockTool({
+  method: "upsert_email_layout",
+  name: "Create or update email layout",
+  description: `Create or update a new email layout within the environment given. Use this tool when you need to define shared pieces of content across multiple email templates, like a header/footer. The email layout will be used to render the email template.
+
+  Here are the rules for creating an email layout:
+
+  - Every email layout must have a \`{{ content }}\` tag. This is where the content of the email will be injected.
+  - You must set both an HTML and text version of the email layout.
+  - CSS should be included in the HTML version of the email layout under <style> tags.
+  `,
+  parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to create or update the email layout for. Defaults to `development`."
+      ),
+    key: z
+      .string()
+      .describe("(string): The key of the email layout to create or update."),
+    name: z.string().describe("(string): The name of the email layout."),
+    htmlContent: z
+      .string()
+      .describe("(string): The HTML content of the email layout."),
+    textContent: z
+      .string()
+      .describe("(string): The text content of the email layout."),
+  }),
+  execute: (knockClient, config) => async (params) => {
+    const response = await knockClient.emailLayouts.upsert(params.key, {
+      environment: params.environment ?? config.environment ?? "development",
+      email_layout: {
+        name: params.name,
+        html_layout: params.htmlContent,
+        text_layout: params.textContent,
+      },
+    });
+
+    return serializeEmailLayoutResponse(response.email_layout);
+  },
+});
+
 export const emailLayouts = {
   listEmailLayouts,
+  createOrUpdateEmailLayout,
 };
 
 export const permissions = {
   read: ["listEmailLayouts"],
+  manage: ["createOrUpdateEmailLayout"],
 };

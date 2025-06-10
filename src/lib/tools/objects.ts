@@ -48,7 +48,7 @@ const getObject = KnockTool({
 });
 
 const createOrUpdateObject = KnockTool({
-  method: "create_or_update_object",
+  method: "upsert_object",
   name: "Create or update object",
   description: `Create or update an object in a specific collection. Objects are used to model custom collections in Knock that are NOT users or tenants. If the object does not exist, it will be created. If the object exists, it will be updated with the provided properties. The update will always perform an upsert operation, so you do not need to provide the full properties each time.
   

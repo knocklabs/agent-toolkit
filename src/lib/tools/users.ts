@@ -40,7 +40,7 @@ const getUser = KnockTool({
 });
 
 const createOrUpdateUser = KnockTool({
-  method: "create_or_update_user",
+  method: "upsert_user",
   name: "Create or update user",
   description: `
   Creates a new user if they don't exist, or updates the user object for the given userId, including email, name, phone number, and any custom properties.
