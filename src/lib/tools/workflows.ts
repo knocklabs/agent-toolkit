@@ -1,4 +1,4 @@
-import { Workflow } from "@knocklabs/mgmt/resources/index.js";
+import { Workflow, WorkflowStep } from "@knocklabs/mgmt/resources/index.js";
 import { z } from "zod";
 
 import { KnockTool } from "../knock-tool.js";
@@ -25,6 +25,19 @@ export function serializeWorkflowResponse(
     description: workflow.description,
     categories: workflow.categories,
     schema: workflow.trigger_data_json_schema,
+  };
+}
+
+export function serializeFullWorkflowResponse(
+  workflow: Workflow
+): SerializedWorkflow & { steps: WorkflowStep[] } {
+  return {
+    key: workflow.key,
+    name: workflow.name,
+    description: workflow.description,
+    categories: workflow.categories,
+    schema: workflow.trigger_data_json_schema,
+    steps: workflow.steps,
   };
 }
 
@@ -80,7 +93,7 @@ const getWorkflow = KnockTool({
       environment: params.environment ?? config.environment ?? "development",
     });
 
-    return serializeWorkflowResponse(workflow);
+    return serializeFullWorkflowResponse(workflow);
   },
 });
 

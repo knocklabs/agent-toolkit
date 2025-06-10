@@ -49,9 +49,9 @@ const listTenants = KnockTool({
   },
 });
 
-const setTenant = KnockTool({
-  method: "set_tenant",
-  name: "Set tenant",
+const createOrUpdateTenant = KnockTool({
+  method: "upsert_tenant",
+  name: "Create or update tenant",
   description: `
   Creates or updates a tenant using the properties provided. Tenants in Knock are used to model organizations, teams, and other groups of users. They are a special type of object.
   
@@ -83,10 +83,10 @@ const setTenant = KnockTool({
 export const tenants = {
   getTenant,
   listTenants,
-  setTenant,
+  createOrUpdateTenant,
 };
 
 export const permissions = {
   read: ["getTenant", "listTenants"],
-  manage: ["setTenant"],
+  manage: ["createOrUpdateTenant"],
 };

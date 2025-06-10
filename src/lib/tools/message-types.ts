@@ -48,7 +48,7 @@ const listMessageTypes = KnockTool({
 });
 
 const createOrUpdateMessageType = KnockTool({
-  method: "create_or_update_message_type",
+  method: "upsert_message_type",
   name: "Create or update message type",
   description: `
   Create or update a message type. A message type is a schema that defines fields available to an editor within Knock. Message types always have at least one variant, that MUST be named "default". Use this tool when you need to create a new message type, or update an existing message type.

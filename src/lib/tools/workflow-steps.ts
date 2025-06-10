@@ -137,7 +137,7 @@ const contentBlockSchema = z.union([
 ]);
 
 const createOrUpdateEmailStepInWorkflow = KnockTool({
-  method: "create_or_update_email_step_in_workflow",
+  method: "upsert_workflow_email_step",
   name: "Create or update email step in workflow",
   description: `
   Creates or updates an email step in a workflow. Use this tool when you're asked to create an email notification and you need to specify the content of the email.
@@ -302,7 +302,7 @@ const createOrUpdateEmailStepInWorkflow = KnockTool({
 });
 
 const createOrUpdateSmsStepInWorkflow = KnockTool({
-  method: "create_or_update_sms_step_in_workflow",
+  method: "upsert_workflow_sms_step",
   name: "Create or update sms step in workflow",
   description: `
   Creates an SMS step in a workflow. Use this tool when you're asked to create an SMS notification and you need to specify the content of the SMS.
@@ -355,7 +355,7 @@ const createOrUpdateSmsStepInWorkflow = KnockTool({
 });
 
 const createOrUpdatePushStepInWorkflow = KnockTool({
-  method: "create_or_update_push_step_in_workflow",
+  method: "upsert_workflow_push_step",
   name: "Create or update push step in workflow",
   description: `
   Creates a push step in a workflow. Use this tool when you're asked to create a push notification and you need to specify the content of the push notification.
@@ -415,7 +415,7 @@ const createOrUpdatePushStepInWorkflow = KnockTool({
 
 // TODO: Add support for action buttons, not just the action URL
 const createOrUpdateInAppFeedStepInWorkflow = KnockTool({
-  method: "create_or_update_in_app_feed_step_in_workflow",
+  method: "upsert_workflow_in_app_step",
   name: "Create or update in app feed step in workflow",
   description: `
   Creates an in app feed step in a workflow. Use this tool when you're asked to create an in app feed notification and you need to specify the content of the in app feed notification.
@@ -476,7 +476,7 @@ const createOrUpdateInAppFeedStepInWorkflow = KnockTool({
 });
 
 const createOrUpdateChatStepInWorkflow = KnockTool({
-  method: "create_or_update_chat_step_in_workflow",
+  method: "upsert_workflow_chat_step",
   name: "Create or update chat step in workflow",
   description: `
   Creates a chat step in a workflow. Use this tool when you're asked to create a chat, Slack, Discord, or Microsoft Teams notification and you need to specify the content of the chat notification.
@@ -530,7 +530,7 @@ const createOrUpdateChatStepInWorkflow = KnockTool({
 });
 
 const createOrUpdateDelayStepInWorkflow = KnockTool({
-  method: "create_or_update_delay_step_in_workflow",
+  method: "upsert_workflow_delay_step",
   name: "Create or update delay step in workflow",
   description: `
   Creates a delay step in a workflow. Use this tool when you're asked to add a delay to the workflow that pauses, or waits for a period of time before continuing.
@@ -598,7 +598,7 @@ const createOrUpdateDelayStepInWorkflow = KnockTool({
 });
 
 const createOrUpdateBatchStepInWorkflow = KnockTool({
-  method: "create_or_update_batch_step_in_workflow",
+  method: "upsert_workflow_batch_step",
   name: "Create or update batch step in workflow",
   description: `
   Creates a batch step in a workflow. Use this tool when you're asked to create a batch step or asked to add digesting behavior to a workflow. The batch step collects multiple workflow triggers for a single recipient over a period of time and then flushes the content to the next step.

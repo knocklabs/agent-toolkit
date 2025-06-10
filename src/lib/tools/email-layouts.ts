@@ -9,6 +9,8 @@ import { KnockTool } from "../knock-tool.js";
 type SerializedEmailLayout = {
   key: string;
   name: string;
+  htmlContent: string;
+  textContent: string;
 };
 
 function serializeEmailLayoutResponse(
@@ -17,6 +19,8 @@ function serializeEmailLayoutResponse(
   return {
     key: emailLayout.key,
     name: emailLayout.name,
+    htmlContent: emailLayout.html_layout,
+    textContent: emailLayout.text_layout,
   };
 }
 
@@ -46,7 +50,7 @@ const listEmailLayouts = KnockTool({
 });
 
 const createOrUpdateEmailLayout = KnockTool({
-  method: "create_or_update_email_layout",
+  method: "upsert_email_layout",
   name: "Create or update email layout",
   description: `Create or update a new email layout within the environment given. Use this tool when you need to define shared pieces of content across multiple email templates, like a header/footer. The email layout will be used to render the email template.
 
