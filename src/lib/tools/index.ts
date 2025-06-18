@@ -12,6 +12,7 @@ import {
   environments,
   permissions as environmentsPermissions,
 } from "./environments.js";
+import { guides, permissions as guidesPermissions } from "./guides.js";
 import {
   messageTypes,
   permissions as messageTypesPermissions,
@@ -29,6 +30,7 @@ export const tools = {
   documentation,
   emailLayouts,
   environments,
+  guides,
   messages,
   messageTypes,
   objects,
@@ -44,6 +46,7 @@ export const allTools = {
   ...documentation,
   ...emailLayouts,
   ...environments,
+  ...guides,
   ...messageTypes,
   ...messages,
   ...objects,
@@ -59,6 +62,7 @@ export const toolPermissions = {
   documentation: documentationPermissions,
   emailLayouts: emailLayoutsPermissions,
   environments: environmentsPermissions,
+  guides: guidesPermissions,
   messages: messagesPermissions,
   messageTypes: messageTypesPermissions,
   objects: objectsPermissions,
