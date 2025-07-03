@@ -4,6 +4,7 @@ import { z } from "zod";
 import { Config } from "../types.js";
 
 import { KnockClient } from "./knock-client.js";
+import { safeExecute } from "./utils.js";
 
 export interface KnockToolDefinition {
   /**
@@ -86,7 +87,11 @@ export const KnockTool = (
     ...restOfArgs,
     parameters,
     fullDescription,
-    bindExecute: (knockClient: KnockClient, config: Config) =>
-      execute(knockClient, config),
+    bindExecute:
+      (knockClient: KnockClient, config: Config) => async (input: any) => {
+        return await safeExecute(async () =>
+          execute(knockClient, config)(input)
+        );
+      },
   };
 };
