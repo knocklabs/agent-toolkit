@@ -13,6 +13,11 @@ export interface DeferredToolCallWorkflowData {
    * Any extra data to pass to the workflow as context.
    */
   metadata?: Metadata;
+
+  /**
+   * Any extra data to pass to the workflow as context.
+   */
+  [key: string]: unknown;
 }
 
 export interface DeferredToolCallConfig {

@@ -1,4 +1,4 @@
-import { Recipient } from "@knocklabs/node";
+import { RecipientRequest } from "@knocklabs/node/resources.js";
 
 import { Config } from "@/types";
 
@@ -46,9 +46,9 @@ async function triggerHumanInTheLoopWorkflow({
       tool_call: toolCall,
       metadata: inputConfig.metadata,
     } as DeferredToolCallWorkflowData,
-    recipients: inputConfig.recipients as Recipient[],
+    recipients: inputConfig.recipients as RecipientRequest[],
     tenant: inputConfig.tenant,
-    actor: inputConfig.actor as Recipient,
+    actor: inputConfig.actor as unknown as RecipientRequest,
   });
 
   if (inputConfig.onAfterCallKnock) {
@@ -77,14 +77,14 @@ function handleMessageInteraction(
   }
 
   // We only care about messages that contain a tool call
-  if (message.data.type !== "deferred_tool_call" || !message.data.tool_call) {
+  if (message?.data?.type !== "deferred_tool_call" || !message.data.tool_call) {
     return null;
   }
 
-  const messageData = message.data as DeferredToolCallWorkflowData;
+  const messageData = message.data as unknown as DeferredToolCallWorkflowData;
 
   return {
-    workflow: message.source.key,
+    workflow: message.source!.key,
     interaction: event.event_data,
     toolCall: {
       id: messageData.tool_call.id,
@@ -94,8 +94,8 @@ function handleMessageInteraction(
     },
     metadata: messageData.metadata,
     context: {
-      messageId: message.id,
-      channelId: message.channel_id,
+      messageId: message.id!,
+      channelId: message.channel_id!,
       timestamp: event.created_at,
     },
   };
