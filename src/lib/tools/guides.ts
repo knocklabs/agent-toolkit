@@ -1,7 +1,8 @@
+import { Guide } from "@knocklabs/mgmt/resources.js";
 import { z } from "zod";
 
 import { KnockTool } from "../knock-tool.js";
-import { Guide } from "@knocklabs/mgmt/resources.js";
+
 import { conditionSchema } from "./shared.js";
 
 /**

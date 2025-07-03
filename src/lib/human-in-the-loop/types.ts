@@ -1,5 +1,5 @@
-import { Message } from "@knocklabs/node/dist/src/resources/messages/interfaces";
-import { WorkflowRun } from "@knocklabs/node/dist/src/resources/workflows/interfaces";
+import { WorkflowRunResponse } from "@knocklabs/mgmt/resources.js";
+import { Message } from "@knocklabs/node/resources.js";
 
 type Metadata = Record<string, unknown> | undefined;
 
@@ -47,7 +47,7 @@ export interface DeferredToolCallConfig {
    */
   onAfterCallKnock?: (
     toolCall: DeferredToolCall,
-    result: WorkflowRun
+    result: WorkflowRunResponse
   ) => Promise<void>;
 }
 
