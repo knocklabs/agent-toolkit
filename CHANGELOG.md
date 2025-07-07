@@ -1,5 +1,15 @@
 # @knocklabs/agent-toolkit
 
+## 0.3.0
+
+### Minor Changes
+
+- 08a7769: feat: add guide tools and other fixes
+
+  - added new tools for interacting with guides
+  - added a header for tracking requests
+  - safely execute tools and return structured errors
+
 ## 0.2.0
 
 ### Minor Changes
