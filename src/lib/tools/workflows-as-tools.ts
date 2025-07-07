@@ -2,11 +2,11 @@ import { Workflow } from "@knocklabs/mgmt/resources/index.mjs";
 import jsonSchemaToZod from "json-schema-to-zod";
 import { z } from "zod";
 
-import { Config } from "../../types";
-import { KnockClient } from "../knock-client";
-import { KnockTool } from "../knock-tool";
+import { Config } from "../../types.js";
+import { KnockClient } from "../knock-client.js";
+import { KnockTool } from "../knock-tool.js";
 
-import { recipientSchema } from "./shared";
+import { recipientSchema } from "./shared.js";
 
 /**
  * Converts a workflow into a tool that can be used to trigger the workflow.

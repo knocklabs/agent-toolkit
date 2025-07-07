@@ -4,7 +4,6 @@ import { z } from "zod";
 import { Config } from "../types.js";
 
 import { KnockClient } from "./knock-client.js";
-import { safeExecute } from "./utils.js";
 
 export interface KnockToolDefinition {
   /**
@@ -89,9 +88,24 @@ export const KnockTool = (
     fullDescription,
     bindExecute:
       (knockClient: KnockClient, config: Config) => async (input: any) => {
-        return await safeExecute(async () =>
-          execute(knockClient, config)(input)
-        );
+        try {
+          return await execute(knockClient, config)(input);
+        } catch (error: unknown) {
+          console.error(error);
+
+          if (error instanceof Error) {
+            return {
+              message: `An error occurred with the call to the Knock API: ${error.message}`,
+              error,
+            };
+          }
+
+          return {
+            message:
+              "An unknown error occurred with the call to the Knock API.",
+            error,
+          };
+        }
       },
   };
 };

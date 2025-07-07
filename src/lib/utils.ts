@@ -171,25 +171,3 @@ export function serializeMessageResponse(message: Record<string, any>) {
     metadata: message.metadata,
   };
 }
-
-export async function safeExecute<T>(
-  fn: () => Promise<T>
-): Promise<T | { message: string; error: unknown }> {
-  try {
-    return await fn();
-  } catch (error: unknown) {
-    console.error(error);
-
-    if (error instanceof Error) {
-      return {
-        message: `An error occurred with the call to the Knock API: ${error.message}`,
-        error,
-      };
-    }
-
-    return {
-      message: "An unknown error occurred with the call to the Knock API.",
-      error,
-    };
-  }
-}
