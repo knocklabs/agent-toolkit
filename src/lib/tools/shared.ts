@@ -11,4 +11,31 @@ const recipientSchema = z
     "A recipient can be a user ID or a reference to an object in a collection."
   );
 
-export { recipientSchema };
+const conditionSchema = z
+  .object({
+    operator: z
+      .enum([
+        "equal_to",
+        "not_equal_to",
+        "greater_than",
+        "less_than",
+        "greater_than_or_equal_to",
+        "less_than_or_equal_to",
+        "contains",
+        "not_contains",
+        "contains_all",
+        "empty",
+        "not_empty",
+      ])
+      .describe("(string): The operator to apply to the argument."),
+    value: z.any().describe("(any): The value of the condition."),
+    argument: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The argument of the condition. Can be empty when using empty or not_empty operators."
+      ),
+  })
+  .describe("(object): A condition.");
+
+export { conditionSchema, recipientSchema };

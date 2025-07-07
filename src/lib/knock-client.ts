@@ -1,11 +1,17 @@
 import KnockMgmt from "@knocklabs/mgmt";
 import { Knock } from "@knocklabs/node";
 
+import pkg from "../../package.json";
 import { Config } from "../types.js";
 
 const serviceTokensToApiClients: Record<string, Record<string, Knock>> = {};
 
 type KnockClient = ReturnType<typeof createKnockClient>;
+
+// Include a custom header to identify all client requests in the API logs
+const knockClientHeaders = {
+  "X-Knock-Client": `knock/agent-toolkit@${pkg.version}`,
+};
 
 const createKnockClient = (config: Config) => {
   const serviceToken = config.serviceToken ?? process.env.KNOCK_SERVICE_TOKEN;
@@ -18,6 +24,7 @@ const createKnockClient = (config: Config) => {
 
   const client = new KnockMgmt({
     serviceToken,
+    defaultHeaders: knockClientHeaders,
   });
 
   return Object.assign(client, {
@@ -34,7 +41,10 @@ const createKnockClient = (config: Config) => {
       const { api_key } = await client.apiKeys.exchange({ environment });
 
       // Create a new Knock client with the public API key
-      const knock = new Knock(api_key);
+      const knock = new Knock({
+        apiKey: api_key,
+        defaultHeaders: knockClientHeaders,
+      });
 
       // Store the client in the cache
       if (!serviceTokensToApiClients[serviceToken]) {

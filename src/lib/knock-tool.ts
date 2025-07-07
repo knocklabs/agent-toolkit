@@ -86,7 +86,26 @@ export const KnockTool = (
     ...restOfArgs,
     parameters,
     fullDescription,
-    bindExecute: (knockClient: KnockClient, config: Config) =>
-      execute(knockClient, config),
+    bindExecute:
+      (knockClient: KnockClient, config: Config) => async (input: any) => {
+        try {
+          return await execute(knockClient, config)(input);
+        } catch (error: unknown) {
+          console.error(error);
+
+          if (error instanceof Error) {
+            return {
+              message: `An error occurred with the call to the Knock API: ${error.message}`,
+              error,
+            };
+          }
+
+          return {
+            message:
+              "An unknown error occurred with the call to the Knock API.",
+            error,
+          };
+        }
+      },
   };
 };
