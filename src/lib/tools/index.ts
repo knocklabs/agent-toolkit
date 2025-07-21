@@ -1,3 +1,7 @@
+import {
+  broadcasts,
+  permissions as broadcastsPermissions,
+} from "./broadcasts.js";
 import { channels, permissions as channelsPermissions } from "./channels.js";
 import { commits, permissions as commitsPermissions } from "./commits.js";
 import {
@@ -25,6 +29,7 @@ import { users, permissions as usersPermissions } from "./users.js";
 import { workflows, permissions as workflowsPermissions } from "./workflows.js";
 
 export const tools = {
+  broadcasts,
   channels,
   commits,
   documentation,
@@ -41,6 +46,7 @@ export const tools = {
 };
 
 export const allTools = {
+  ...broadcasts,
   ...channels,
   ...commits,
   ...documentation,
@@ -57,6 +63,7 @@ export const allTools = {
 };
 
 export const toolPermissions = {
+  broadcasts: broadcastsPermissions,
   channels: channelsPermissions,
   commits: commitsPermissions,
   documentation: documentationPermissions,
