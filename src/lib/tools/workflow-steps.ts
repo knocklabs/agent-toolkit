@@ -252,11 +252,13 @@ const createOrUpdateEmailStepInWorkflow = KnockTool({
       ),
     htmlContent: z
       .string()
+      .optional()
       .describe(
         "(string): The HTML content of the email template. Use this when not setting blocks."
       ),
     blocks: z
       .array(contentBlockSchema)
+      .optional()
       .describe(
         "(array): The blocks for the email step. Use this when you don't need to set HTML directly."
       ),
