@@ -1,5 +1,11 @@
 # @knocklabs/agent-toolkit
 
+## 0.4.0
+
+### Minor Changes
+
+- 30b7256: Makes htmlContent and blocks under createOrUpdateEmailStepInWorkflow optional, as we should only ever provide one or the other.
+
 ## 0.3.0
 
 ### Minor Changes
