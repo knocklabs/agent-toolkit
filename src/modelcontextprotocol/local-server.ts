@@ -5,13 +5,14 @@ import * as Sentry from "@sentry/node";
 import { default as yargs } from "yargs";
 import { hideBin } from "yargs/helpers";
 
+import { SENTRY_DSN } from "@config";
+
 import { createKnockClient } from "../lib/knock-client.js";
 import { tools } from "../lib/tools/index.js";
 import { filterTools } from "../lib/utils.js";
 import { Config } from "../types.js";
 
 import { createKnockMcpServer } from "./index.js";
-import { SENTRY_DSN } from "@config";
 
 /**
  * Main entry point for the Knock MCP server.
