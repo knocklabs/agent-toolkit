@@ -11,6 +11,7 @@ import { filterTools } from "../lib/utils.js";
 import { Config } from "../types.js";
 
 import { createKnockMcpServer } from "./index.js";
+import { SENTRY_DSN } from "@config";
 
 /**
  * Main entry point for the Knock MCP server.
@@ -83,7 +84,7 @@ const main = async () => {
     : undefined;
 
   Sentry.init({
-    dsn: "https://96631541e2f1d099b090e899572a807e@o605776.ingest.us.sentry.io/4509843669909504",
+    dsn: SENTRY_DSN,
     sendDefaultPii: false,
     tracesSampleRate: 1.0,
   });
