@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import * as Sentry from "@sentry/node";
 import { default as yargs } from "yargs";
 import { hideBin } from "yargs/helpers";
 
@@ -81,13 +82,20 @@ const main = async () => {
     ? patterns.map((pattern) => filterTools(tools, pattern)).flat()
     : undefined;
 
-  const mcpServer = await createKnockMcpServer({
+  Sentry.init({
+    dsn: "https://96631541e2f1d099b090e899572a807e@o605776.ingest.us.sentry.io/4509843669909504",
+    sendDefaultPii: false,
+    tracesSampleRate: 1.0,
+  });
+
+  const knockServer = await createKnockMcpServer({
     config,
     knockClient,
     tools: filteredTools,
     workflows: workflowsAsTools,
   });
 
+  const mcpServer = Sentry.wrapMcpServerWithSentry(knockServer);
   const transport = new StdioServerTransport();
   await mcpServer.connect(transport);
 };
