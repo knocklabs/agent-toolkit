@@ -1,5 +1,11 @@
 # @knocklabs/agent-toolkit
 
+## 0.5.0
+
+### Minor Changes
+
+- 1e7e223: Instrument MCP server with Sentry
+
 ## 0.4.0
 
 ### Minor Changes
