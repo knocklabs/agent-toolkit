@@ -29,6 +29,7 @@ export default defineConfig((overrideOptions) => {
     esbuildOptions(options) {
       options.alias = {
         "@": "./src",
+        "@config": "./config.ts",
       };
     },
   };
