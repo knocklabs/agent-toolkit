@@ -28,7 +28,11 @@ const conditionSchema = z
         "not_empty",
       ])
       .describe("(string): The operator to apply to the argument."),
-    value: z.any().describe("(any): The value of the condition."),
+    variable: z
+      .string()
+      .describe(
+        "(string): The variable to check against (e.g., 'recipient.email', 'data.property')."
+      ),
     argument: z
       .string()
       .optional()

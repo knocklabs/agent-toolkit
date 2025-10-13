@@ -155,12 +155,45 @@ const createOrUpdateGuide = KnockTool({
   - \`data\`: Use data coming from the application
   - \`tenant\`: Use a property on the tenant
 
-  For example, if you want to target users with the email \`john.doe@example.com\`, you would supply the following targeting conditions:
+  The \`targetPropertyConditions\` object supports two logical operators:
 
+  - **\`all\`**: Conditions are joined with AND logic - ALL conditions must be true
+  - **\`any\`**: Conditions are joined with OR logic - ANY condition can be true
+
+  You can use both \`all\` and \`any\` together for complex targeting logic.
+
+  **Examples:**
+
+  Target users with a specific email (AND logic):
   \`\`\`json
-  [
-    { "operator": "equal_to", "value": "john.doe@example.com", "argument": "recipient.email" }
-  ]
+  {
+    "all": [
+      { "operator": "equal_to", "variable": "john.doe@example.com", "argument": "recipient.email" }
+    ]
+  }
+  \`\`\`
+
+  Target users who are either pro OR enterprise plan (OR logic):
+  \`\`\`json
+  {
+    "any": [
+      { "operator": "equal_to", "variable": "pro", "argument": "recipient.plan" },
+      { "operator": "equal_to", "variable": "enterprise", "argument": "recipient.plan" }
+    ]
+  }
+  \`\`\`
+
+  Complex targeting: pro/enterprise users AND from specific tenant:
+  \`\`\`json
+  {
+    "all": [
+      { "operator": "equal_to", "variable": "tenant-123", "argument": "recipient.tenant_id" }
+    ],
+    "any": [
+      { "operator": "equal_to", "variable": "pro", "argument": "recipient.plan" },
+      { "operator": "equal_to", "variable": "enterprise", "argument": "recipient.plan" }
+    ]
+  }
   \`\`\`
 
   ### Activation location rules
@@ -238,9 +271,23 @@ const createOrUpdateGuide = KnockTool({
       })
       .describe("(object): The guide step to upsert."),
     targetPropertyConditions: z
-      .array(conditionSchema)
+      .object({
+        all: z
+          .array(conditionSchema)
+          .optional()
+          .describe(
+            "(array): Conditions that must ALL be true (AND logic). All conditions in this array must evaluate to true for the guide to be shown."
+          ),
+        any: z
+          .array(conditionSchema)
+          .optional()
+          .describe(
+            "(array): Conditions where ANY can be true (OR logic). At least one condition in this array must evaluate to true for the guide to be shown."
+          ),
+      })
+      .optional()
       .describe(
-        "(array): A list of property conditions that describe the target audience for the guide. Conditions are joined as AND operations."
+        "(object): Property conditions that describe the target audience for the guide. You can use 'all' for AND logic, 'any' for OR logic, or both for complex targeting."
       ),
     activationLocationRules: z
       .array(
@@ -257,6 +304,7 @@ const createOrUpdateGuide = KnockTool({
             ),
         })
       )
+      .optional()
       .describe(
         "(array): A list of activation location rules that describe where in your application the guide should be shown."
       ),
@@ -296,9 +344,7 @@ const createOrUpdateGuide = KnockTool({
             values: params.step.schemaContent,
           },
         ],
-        target_property_conditions: {
-          all: params.targetPropertyConditions,
-        },
+        target_property_conditions: params.targetPropertyConditions,
         activation_location_rules: params.activationLocationRules,
       },
     });
