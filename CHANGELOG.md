@@ -1,5 +1,11 @@
 # @knocklabs/agent-toolkit
 
+## 0.5.1
+
+### Patch Changes
+
+- e2173f8: Fix user upsert tool
+
 ## 0.5.0
 
 ### Minor Changes
