@@ -407,6 +407,9 @@ const createOrUpdatePushStepInWorkflow = KnockTool({
         template: {
           title: params.title,
           text_body: params.content,
+          settings: {
+            delivery_type: "content",
+          },
         } as PushTemplate,
         ref: params.stepRef ?? generateStepRef("push"),
       },
