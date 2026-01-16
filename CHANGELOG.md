@@ -1,5 +1,11 @@
 # @knocklabs/agent-toolkit
 
+## 0.5.2
+
+### Patch Changes
+
+- af8651f: Adds required template settings parameter to `createOrUpdatePushStepInWorkflow`
+
 ## 0.5.1
 
 ### Patch Changes
