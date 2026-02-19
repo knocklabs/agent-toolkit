@@ -263,7 +263,7 @@ const getUserMessages = KnockTool({
   execute: (knockClient, config) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
 
-    const messages = await publicClient.users.getMessages(
+    const messages = await publicClient.users.listMessages(
       params.userId ?? config.userId,
       {
         workflow_run_id: params.workflowRunId,

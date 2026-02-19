@@ -24,6 +24,30 @@ function serializeEmailLayoutResponse(
   };
 }
 
+const getEmailLayout = KnockTool({
+  method: "get_email_layout",
+  name: "Get email layout",
+  description: `Retrieves a single email layout by its key. Returns the layout's name, HTML content, and text content. Use this tool when you need to inspect the details of a specific email layout.`,
+  parameters: z.object({
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to retrieve the email layout from. Defaults to `development`."
+      ),
+    key: z
+      .string()
+      .describe("(string): The key of the email layout to retrieve."),
+  }),
+  execute: (knockClient, config) => async (params) => {
+    const response = await knockClient.emailLayouts.retrieve(params.key, {
+      environment: params.environment ?? config.environment ?? "development",
+    });
+
+    return serializeEmailLayoutResponse(response.email_layout);
+  },
+});
+
 const listEmailLayouts = KnockTool({
   method: "list_email_layouts",
   name: "List email layouts",
@@ -93,11 +117,12 @@ const createOrUpdateEmailLayout = KnockTool({
 });
 
 export const emailLayouts = {
+  getEmailLayout,
   listEmailLayouts,
   createOrUpdateEmailLayout,
 };
 
 export const permissions = {
-  read: ["listEmailLayouts"],
+  read: ["listEmailLayouts", "getEmailLayout"],
   manage: ["createOrUpdateEmailLayout"],
 };
