@@ -88,9 +88,7 @@ const getMessageEvents = KnockTool({
       ),
     messageId: z
       .string()
-      .describe(
-        "(string): The ID of the message to retrieve events for."
-      ),
+      .describe("(string): The ID of the message to retrieve events for."),
   }),
   execute: (knockClient) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
@@ -106,5 +104,10 @@ export const messages = {
 };
 
 export const permissions = {
-  read: ["getMessage", "getMessageContent", "getMessageDeliveryLogs", "getMessageEvents"],
+  read: [
+    "getMessage",
+    "getMessageContent",
+    "getMessageDeliveryLogs",
+    "getMessageEvents",
+  ],
 };
