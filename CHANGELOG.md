@@ -1,5 +1,11 @@
 # @knocklabs/agent-toolkit
 
+## 0.5.3
+
+### Patch Changes
+
+- 9c31c53: feat: message tools, workflow tool improvements
+
 ## 0.5.2
 
 ### Patch Changes
