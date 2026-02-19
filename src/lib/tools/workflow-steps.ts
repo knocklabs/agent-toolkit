@@ -250,6 +250,18 @@ const createOrUpdateEmailStepInWorkflow = KnockTool({
       .describe(
         "(string): The reference of the step to update. If not provided, a new step will be created."
       ),
+    channelKey: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The key of the channel to use for this step. Use `list_channels` to see available channels. If not provided, the first email channel will be used."
+      ),
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to operate in. Defaults to `development`."
+      ),
     htmlContent: z
       .string()
       .optional()
@@ -268,8 +280,11 @@ const createOrUpdateEmailStepInWorkflow = KnockTool({
     subject: z.string().describe("(string): The subject of the email step."),
   }),
   execute: (knockClient, config) => async (params) => {
+    const environment =
+      params.environment ?? config.environment ?? "development";
+
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
-      environment: config.environment ?? "development",
+      environment,
     });
 
     const emailChannelsPage = await knockClient.channels.list();
@@ -277,7 +292,7 @@ const createOrUpdateEmailStepInWorkflow = KnockTool({
       (channel) => channel.type === "email"
     );
 
-    if (emailChannels.length === 0) {
+    if (!params.channelKey && emailChannels.length === 0) {
       throw new Error("No email channels found");
     }
 
@@ -287,7 +302,7 @@ const createOrUpdateEmailStepInWorkflow = KnockTool({
       // @ts-expect-error
       {
         type: "channel",
-        channel_key: emailChannels[0].key,
+        channel_key: params.channelKey ?? emailChannels[0].key,
         template: {
           settings: {
             layout_key: params.layoutKey ?? "default",
@@ -298,7 +313,7 @@ const createOrUpdateEmailStepInWorkflow = KnockTool({
         } as EmailTemplate,
         ref: params.stepRef ?? generateStepRef("email"),
       },
-      config.environment ?? "development"
+      environment
     );
   },
 });
@@ -323,11 +338,26 @@ const createOrUpdateSmsStepInWorkflow = KnockTool({
       .describe(
         "(string): The reference of the step to update. If not provided, a new step will be created."
       ),
+    channelKey: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The key of the channel to use for this step. Use `list_channels` to see available channels. If not provided, the first SMS channel will be used."
+      ),
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to operate in. Defaults to `development`."
+      ),
     content: z.string().describe("(string): The content of the SMS."),
   }),
   execute: (knockClient, config) => async (params) => {
+    const environment =
+      params.environment ?? config.environment ?? "development";
+
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
-      environment: config.environment ?? "development",
+      environment,
     });
 
     const smsChannelsPage = await knockClient.channels.list();
@@ -335,7 +365,7 @@ const createOrUpdateSmsStepInWorkflow = KnockTool({
       (channel) => channel.type === "sms"
     );
 
-    if (smsChannels.length === 0) {
+    if (!params.channelKey && smsChannels.length === 0) {
       throw new Error("No SMS channels found");
     }
 
@@ -345,13 +375,13 @@ const createOrUpdateSmsStepInWorkflow = KnockTool({
       // @ts-expect-error
       {
         type: "channel",
-        channel_key: smsChannels[0].key,
+        channel_key: params.channelKey ?? smsChannels[0].key,
         template: {
           text_body: params.content,
         } as SMSTemplate,
         ref: params.stepRef ?? generateStepRef("sms"),
       },
-      config.environment ?? "development"
+      environment
     );
   },
 });
@@ -378,14 +408,29 @@ const createOrUpdatePushStepInWorkflow = KnockTool({
       .describe(
         "(string): The reference of the step to update. If not provided, a new step will be created."
       ),
+    channelKey: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The key of the channel to use for this step. Use `list_channels` to see available channels. If not provided, the first push channel will be used."
+      ),
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to operate in. Defaults to `development`."
+      ),
     title: z.string().describe("(string): The title of the push notification."),
     content: z
       .string()
       .describe("(string): The content (body) of the push notification."),
   }),
   execute: (knockClient, config) => async (params) => {
+    const environment =
+      params.environment ?? config.environment ?? "development";
+
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
-      environment: config.environment ?? "development",
+      environment,
     });
 
     const pushChannelsPage = await knockClient.channels.list();
@@ -393,7 +438,7 @@ const createOrUpdatePushStepInWorkflow = KnockTool({
       (channel) => channel.type === "push"
     );
 
-    if (pushChannels.length === 0) {
+    if (!params.channelKey && pushChannels.length === 0) {
       throw new Error("No push channels found");
     }
 
@@ -403,7 +448,7 @@ const createOrUpdatePushStepInWorkflow = KnockTool({
       // @ts-expect-error
       {
         type: "channel",
-        channel_key: pushChannels[0].key,
+        channel_key: params.channelKey ?? pushChannels[0].key,
         template: {
           title: params.title,
           text_body: params.content,
@@ -413,7 +458,7 @@ const createOrUpdatePushStepInWorkflow = KnockTool({
         } as PushTemplate,
         ref: params.stepRef ?? generateStepRef("push"),
       },
-      config.environment ?? "development"
+      environment
     );
   },
 });
@@ -439,6 +484,18 @@ const createOrUpdateInAppFeedStepInWorkflow = KnockTool({
       .describe(
         "(string): The reference of the step to update. If not provided, a new step will be created."
       ),
+    channelKey: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The key of the channel to use for this step. Use `list_channels` to see available channels. If not provided, the first in-app feed channel will be used."
+      ),
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to operate in. Defaults to `development`."
+      ),
     actionUrl: z
       .string()
       .describe(
@@ -449,8 +506,11 @@ const createOrUpdateInAppFeedStepInWorkflow = KnockTool({
       .describe("(string): The markdown content of the in app feed."),
   }),
   execute: (knockClient, config) => async (params) => {
+    const environment =
+      params.environment ?? config.environment ?? "development";
+
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
-      environment: config.environment ?? "development",
+      environment,
     });
 
     const inAppChannelsPage = await knockClient.channels.list();
@@ -458,7 +518,7 @@ const createOrUpdateInAppFeedStepInWorkflow = KnockTool({
       (channel) => channel.type === "in_app_feed"
     );
 
-    if (inAppChannels.length === 0) {
+    if (!params.channelKey && inAppChannels.length === 0) {
       throw new Error("No in app channels found");
     }
 
@@ -468,14 +528,14 @@ const createOrUpdateInAppFeedStepInWorkflow = KnockTool({
       // @ts-expect-error
       {
         type: "channel",
-        channel_key: inAppChannels[0].key,
+        channel_key: params.channelKey ?? inAppChannels[0].key,
         template: {
           action_url: params.actionUrl,
           markdown_body: params.body,
         } as InAppFeedTemplate,
         ref: params.stepRef ?? generateStepRef("in_app_feed"),
       },
-      config.environment ?? "development"
+      environment
     );
   },
 });
@@ -499,13 +559,28 @@ const createOrUpdateChatStepInWorkflow = KnockTool({
       .describe(
         "(string): The reference of the step to update. If not provided, a new step will be created."
       ),
+    channelKey: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The key of the channel to use for this step. Use `list_channels` to see available channels. If not provided, the first chat channel will be used."
+      ),
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to operate in. Defaults to `development`."
+      ),
     body: z
       .string()
       .describe("(string): The markdown content of the notification."),
   }),
   execute: (knockClient, config) => async (params) => {
+    const environment =
+      params.environment ?? config.environment ?? "development";
+
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
-      environment: config.environment ?? "development",
+      environment,
     });
 
     const chatChannelsPage = await knockClient.channels.list();
@@ -513,7 +588,7 @@ const createOrUpdateChatStepInWorkflow = KnockTool({
       (channel) => channel.type === "chat"
     );
 
-    if (chatChannels.length === 0) {
+    if (!params.channelKey && chatChannels.length === 0) {
       throw new Error("No chat channels found");
     }
 
@@ -523,13 +598,13 @@ const createOrUpdateChatStepInWorkflow = KnockTool({
       // @ts-expect-error
       {
         type: "channel",
-        channel_key: chatChannels[0].key,
+        channel_key: params.channelKey ?? chatChannels[0].key,
         template: {
           markdown_body: params.body,
         } as ChatTemplate,
         ref: params.stepRef ?? generateStepRef("chat"),
       },
-      config.environment ?? "development"
+      environment
     );
   },
 });
@@ -561,18 +636,27 @@ const createOrUpdateDelayStepInWorkflow = KnockTool({
       .describe(
         "(string): The reference of the step to update. If not provided, a new step will be created."
       ),
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to operate in. Defaults to `development`."
+      ),
     delayValue: z.number().describe("(number): The value of the delay."),
     delayUnit: z
       .enum(["seconds", "minutes", "hours", "days"])
       .describe("(enum): The unit of the delay."),
   }),
   execute: (knockClient, config) => async (params) => {
+    const environment =
+      params.environment ?? config.environment ?? "development";
+
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
-      environment: config.environment ?? "development",
+      environment,
     });
 
     const workflowParams: WorkflowUpsertParams = {
-      environment: config.environment ?? "development",
+      environment,
       workflow: {
         ...workflow,
         steps: [
@@ -631,6 +715,12 @@ const createOrUpdateBatchStepInWorkflow = KnockTool({
       .describe(
         "(string): The reference of the step to update. If not provided, a new step will be created."
       ),
+    environment: z
+      .string()
+      .optional()
+      .describe(
+        "(string): The environment to operate in. Defaults to `development`."
+      ),
     batchWindow: z.object({
       value: z.number().describe("(number): The value of the batch window."),
       unit: z
@@ -639,8 +729,11 @@ const createOrUpdateBatchStepInWorkflow = KnockTool({
     }),
   }),
   execute: (knockClient, config) => async (params) => {
+    const environment =
+      params.environment ?? config.environment ?? "development";
+
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
-      environment: config.environment ?? "development",
+      environment,
     });
 
     return await updateWorkflowWithStep(
@@ -657,7 +750,7 @@ const createOrUpdateBatchStepInWorkflow = KnockTool({
         },
         ref: params.stepRef ?? generateStepRef("batch"),
       },
-      config.environment ?? "development"
+      environment
     );
   },
 });
