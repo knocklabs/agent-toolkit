@@ -1,5 +1,11 @@
 # @knocklabs/agent-toolkit
 
+## 0.5.4
+
+### Patch Changes
+
+- 51b1386: feat: export core tools
+
 ## 0.5.3
 
 ### Patch Changes
