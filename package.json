@@ -47,6 +47,10 @@
     },
     "./types": {
       "types": "./dist/types.d.ts"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "default": "./dist/core/index.js"
     }
   },
   "bin": {
