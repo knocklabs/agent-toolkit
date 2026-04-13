@@ -1,14 +1,13 @@
-import { Workflow } from "@knocklabs/mgmt/resources/index.js";
 import { z } from "zod";
 
 import { KnockTool } from "../knock-tool.js";
 
-import { workflowStepTools } from "./workflow-steps.js";
 import {
   serializeFullWorkflowResponse,
   serializeWorkflowResponse,
   type SerializedWorkflow,
 } from "./workflow-serialize.js";
+import { workflowStepTools } from "./workflow-steps.js";
 
 export type { SerializedWorkflow };
 export { serializeFullWorkflowResponse, serializeWorkflowResponse };

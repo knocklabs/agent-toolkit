@@ -47,11 +47,10 @@ describe("createOrUpdateEmailStepInWorkflow", () => {
   }
 
   it("includes only html_content when htmlContent is set with blocks: []", async () => {
-    const run =
-      workflowStepTools.createOrUpdateEmailStepInWorkflow.bindExecute(
-        makeClient(),
-        config
-      );
+    const run = workflowStepTools.createOrUpdateEmailStepInWorkflow.bindExecute(
+      makeClient(),
+      config
+    );
 
     await run({
       workflowKey: "wf-1",
@@ -67,11 +66,10 @@ describe("createOrUpdateEmailStepInWorkflow", () => {
   });
 
   it("includes only visual_blocks when using blocks without htmlContent", async () => {
-    const run =
-      workflowStepTools.createOrUpdateEmailStepInWorkflow.bindExecute(
-        makeClient(),
-        config
-      );
+    const run = workflowStepTools.createOrUpdateEmailStepInWorkflow.bindExecute(
+      makeClient(),
+      config
+    );
 
     await run({
       workflowKey: "wf-1",
@@ -86,11 +84,10 @@ describe("createOrUpdateEmailStepInWorkflow", () => {
   });
 
   it("rejects non-empty htmlContent and blocks together", async () => {
-    const run =
-      workflowStepTools.createOrUpdateEmailStepInWorkflow.bindExecute(
-        makeClient(),
-        config
-      );
+    const run = workflowStepTools.createOrUpdateEmailStepInWorkflow.bindExecute(
+      makeClient(),
+      config
+    );
 
     const res = await run({
       workflowKey: "wf-1",
@@ -105,11 +102,10 @@ describe("createOrUpdateEmailStepInWorkflow", () => {
   });
 
   it("rejects when neither htmlContent nor blocks are provided", async () => {
-    const run =
-      workflowStepTools.createOrUpdateEmailStepInWorkflow.bindExecute(
-        makeClient(),
-        config
-      );
+    const run = workflowStepTools.createOrUpdateEmailStepInWorkflow.bindExecute(
+      makeClient(),
+      config
+    );
 
     const res = await run({
       workflowKey: "wf-1",
@@ -120,5 +116,4 @@ describe("createOrUpdateEmailStepInWorkflow", () => {
       message: expect.stringMatching(/either htmlContent/i),
     });
   });
-
 });
