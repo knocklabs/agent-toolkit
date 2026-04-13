@@ -55,29 +55,29 @@ It's possible to pass additional context to the configuration of each library to
 To start using the Knock MCP as a local server, you must start it with a service token. You can run it using `npx`.
 
 ```
-npx -y @knocklabs/agent-toolkit -p local-mcp --service-token kst_12345
+npx -y --package=@knocklabs/agent-toolkit local-mcp --service-token kst_12345
 ```
 
 By default, the MCP server will expose **all tools** to the LLM. To limit the tools available you can use the `--tools` (`-t`) flag:
 
 ```
 // Pass all tools
-npx -y @knocklabs/agent-toolkit -p local-mcp --tools="*"
+npx -y --package=@knocklabs/agent-toolkit local-mcp --tools="*"
 
 // Specific category
-npx -y @knocklabs/agent-toolkit -p local-mcp --tools "workflows.*"
+npx -y --package=@knocklabs/agent-toolkit local-mcp --tools "workflows.*"
 
 // Specific tools
-npx -y @knocklabs/agent-toolkit -p local-mcp --tools "workflows.triggerWorkflow"
+npx -y --package=@knocklabs/agent-toolkit local-mcp --tools "workflows.triggerWorkflow"
 ```
 
 If you wish to enable workflows-as-tools within the MCP server, you must set the `--workflows` flag to pass in a list of approved workflow keys to expose. This ensures that you keep the number of tools exposed to your MCP client to a minimum.
 
 ```
-npx -y @knocklabs/agent-toolkit -p local-mcp --workflows comment-created activate-account
+npx -y --package=@knocklabs/agent-toolkit local-mcp --workflows comment-created activate-account
 ```
 
-It's also possible to pass `environment`, `userId`, and `tenant` to the local MCP server to set default values. Use the `--help` flag to view additional server options.
+It's also possible to pass `environment`, `userId`, and `tenant` to the local MCP server to set default values. To print server CLI options, run `npx -y --package=@knocklabs/agent-toolkit -- local-mcp --help` (the `--` before `local-mcp` is required so `--help` is passed to the server rather than consumed by `npx`).
 
 ### AI SDK
 
