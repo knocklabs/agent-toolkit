@@ -13,7 +13,7 @@ import { z } from "zod";
 import { KnockClient } from "../knock-client.js";
 import { KnockTool } from "../knock-tool.js";
 
-import { serializeWorkflowResponse } from "./workflows";
+import { serializeWorkflowResponse } from "./workflow-serialize.js";
 
 function generateStepRef(stepType: string) {
   const randomString = Math.random().toString(36).substring(2, 7).toUpperCase();
@@ -135,6 +135,40 @@ const contentBlockSchema = z.union([
       ),
   }),
 ]);
+
+type ContentBlock = z.infer<typeof contentBlockSchema>;
+
+function validateEmailStepContent(params: {
+  htmlContent?: string | undefined;
+  blocks?: ContentBlock[] | undefined;
+}):
+  | { ok: true; kind: "html"; html: string }
+  | { ok: true; kind: "blocks"; blocks: ContentBlock[] }
+  | { ok: false; message: string } {
+  const trimmedHtml = params.htmlContent?.trim() ?? "";
+  const hasHtml = trimmedHtml.length > 0;
+  const hasBlocks = params.blocks !== undefined;
+
+  if (!hasHtml && !hasBlocks) {
+    return {
+      ok: false,
+      message: "Provide either htmlContent (non-empty) or blocks.",
+    };
+  }
+
+  if (hasHtml && hasBlocks && (params.blocks?.length ?? 0) > 0) {
+    return {
+      ok: false,
+      message: "Provide either htmlContent or blocks, not both.",
+    };
+  }
+
+  if (hasHtml) {
+    return { ok: true, kind: "html", html: trimmedHtml };
+  }
+
+  return { ok: true, kind: "blocks", blocks: params.blocks! };
+}
 
 const createOrUpdateEmailStepInWorkflow = KnockTool({
   method: "upsert_workflow_email_step",
@@ -296,6 +330,24 @@ const createOrUpdateEmailStepInWorkflow = KnockTool({
       throw new Error("No email channels found");
     }
 
+    const content = validateEmailStepContent(params);
+    if (!content.ok) {
+      throw new Error(content.message);
+    }
+
+    const templateBase = {
+      settings: {
+        layout_key: params.layoutKey ?? "default",
+      },
+      subject: params.subject,
+    };
+
+    const template = (
+      content.kind === "html"
+        ? { ...templateBase, html_content: content.html }
+        : { ...templateBase, visual_blocks: content.blocks }
+    ) as EmailTemplate;
+
     return await updateWorkflowWithStep(
       knockClient,
       workflow,
@@ -303,14 +355,7 @@ const createOrUpdateEmailStepInWorkflow = KnockTool({
       {
         type: "channel",
         channel_key: params.channelKey ?? emailChannels[0].key,
-        template: {
-          settings: {
-            layout_key: params.layoutKey ?? "default",
-          },
-          subject: params.subject,
-          visual_blocks: params.blocks,
-          html_content: params.htmlContent,
-        } as EmailTemplate,
+        template,
         ref: params.stepRef ?? generateStepRef("email"),
       },
       environment
