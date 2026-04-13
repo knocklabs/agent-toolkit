@@ -1,5 +1,12 @@
 # @knocklabs/agent-toolkit
 
+## 0.5.5
+
+### Patch Changes
+
+- 77064d7: fix: issue with create or update email tool and html templates
+- d969cfc: fix: ensure local entry point for mcp server works
+
 ## 0.5.4
 
 ### Patch Changes
