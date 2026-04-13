@@ -2,7 +2,8 @@
   "name": "@knocklabs/agent-toolkit",
   "version": "0.5.4",
   "description": "A toolkit for working with Knock in Agent workflows.",
-  "main": "src/index.js",
+  "main": "./dist/modelcontextprotocol/index.js",
+  "types": "./dist/modelcontextprotocol/index.d.ts",
   "scripts": {
     "build": "tsup --env.NODE_ENV production",
     "clean": "rimraf ./dist",
@@ -21,6 +22,10 @@
   "sideEffects": false,
   "type": "module",
   "exports": {
+    ".": {
+      "types": "./dist/modelcontextprotocol/index.d.ts",
+      "default": "./dist/modelcontextprotocol/index.js"
+    },
     "./openai": {
       "types": "./dist/openai/index.d.ts",
       "default": "./dist/openai/index.js"
@@ -54,6 +59,7 @@
     }
   },
   "bin": {
+    "agent-toolkit": "dist/modelcontextprotocol/local-server.js",
     "local-mcp": "dist/modelcontextprotocol/local-server.js"
   },
   "files": [
