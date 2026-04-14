@@ -159,7 +159,7 @@ const createOrUpdateGuide = KnockTool({
 
   \`\`\`json
   [
-    { "operator": "equal_to", "value": "john.doe@example.com", "argument": "recipient.email" }
+    { "operator": "equal_to", "argument": "john.doe@example.com", "variable": "recipient.email" }
   ]
   \`\`\`
 

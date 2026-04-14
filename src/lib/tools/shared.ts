@@ -11,6 +11,14 @@ const recipientSchema = z
     "A recipient can be a user ID or a reference to an object in a collection."
   );
 
+const noArgumentOperators = [
+  "empty",
+  "not_empty",
+  "exists",
+  "not_exists",
+  "is_timestamp",
+] as const;
+
 const conditionSchema = z
   .object({
     operator: z
@@ -24,17 +32,36 @@ const conditionSchema = z
         "contains",
         "not_contains",
         "contains_all",
-        "empty",
-        "not_empty",
+        "not_contains_all",
+        ...noArgumentOperators,
       ])
       .describe("(string): The operator to apply to the argument."),
-    value: z.any().describe("(any): The value of the condition."),
+    variable: z.string().describe("(string): The variable of the condition."),
     argument: z
       .string()
       .optional()
       .describe(
-        "(string): The argument of the condition. Can be empty when using empty or not_empty operators."
+        `(string): The argument of the condition. Required unless operator is ${noArgumentOperators.join(", ")}.`
       ),
+  })
+  .superRefine((data, ctx) => {
+    const operatorRequiresNoArgument = (
+      noArgumentOperators as readonly string[]
+    ).includes(data.operator);
+
+    if (operatorRequiresNoArgument && data.argument) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["argument"],
+        message: `argument must be empty when operator is ${data.operator}`,
+      });
+    } else if (!operatorRequiresNoArgument && !data.argument) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["argument"],
+        message: `argument is required when operator is ${data.operator}`,
+      });
+    }
   })
   .describe("(object): A condition.");
 
