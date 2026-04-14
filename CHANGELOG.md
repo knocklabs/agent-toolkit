@@ -1,5 +1,11 @@
 # @knocklabs/agent-toolkit
 
+## 0.5.6
+
+### Patch Changes
+
+- c11264f: fix: rename condition schema field from `argument` to `variable` to match Knock API
+
 ## 0.5.5
 
 ### Patch Changes
