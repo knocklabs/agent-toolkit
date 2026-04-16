@@ -204,9 +204,10 @@ const createOrUpdateGuide = KnockTool({
       .string()
       .min(3)
       .max(255)
-      .regex(/^[a-z0-9_-]+$/)
+      .regex(/^[a-zA-Z0-9_-]+$/)
+      .transform((val) => val.toLowerCase())
       .describe(
-        "(string): The key of the guide to upsert. Must be at minimum 3 characters and at maximum 255 characters in length. Must be in the format of ^[a-z0-9_-]+$."
+        "(string): The key of the guide to upsert. Must be at minimum 3 characters and at maximum 255 characters in length. Must be in the format of ^[a-zA-Z0-9_-]+$. Uppercase characters will be normalized to lowercase."
       ),
     name: z
       .string()
