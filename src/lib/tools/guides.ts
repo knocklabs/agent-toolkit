@@ -1,3 +1,4 @@
+import KnockMgmt from "@knocklabs/mgmt";
 import { Guide } from "@knocklabs/mgmt/resources.js";
 import { z } from "zod";
 
@@ -123,7 +124,7 @@ const createOrUpdateGuide = KnockTool({
   When working with guide steps, you must use a \`schemaKey\` and \`schemaVariantKey\` to reference the message type schema that the step's content conforms to. You can use the \`list_message_types\` tool to get a list of available message types and the available variants for that message type.
 
   You **must** supply a \`schemaContent\` that sets the content for each of the fields in the \`fields\` object inside of the message type schema variant you select.
-  
+
   For example, if you have a message type schema with a \`fields\` object that looks like this:
 
   \`\`\`json
@@ -163,16 +164,32 @@ const createOrUpdateGuide = KnockTool({
   ]
   \`\`\`
 
-  ### Activation location rules
+  ### Activation URL patterns
 
-  You can supply a list of activation location rules to describe where in your application the guide should be shown. Each activation rule is a directive that describes whether the guide should be shown or hidden based on the pathname of the page.
+  You can supply a list of activation URL patterns to describe where in your application the guide should be shown. Each activation pattern is a directive that describes whether the guide should be shown or hidden based on the pathname and/or search (query string) of the page. Each pattern must include at least one of \`pathname\` or \`search\` (both may be provided together).
 
-  For example, if you want to show the guide on all pages except for the \`admin\` path, you would supply the following activation location rules:
+  For example, if you want to show the guide on all pages except for the \`admin\` path, you would supply the following activation URL patterns:
 
   \`\`\`json
   [
     { "directive": "allow", "pathname": "*" },
     { "directive": "block", "pathname": "/admin" }
+  ]
+  \`\`\`
+
+  You can also match on the query string using \`search\`. For example, to show the guide only when the URL has a \`tour=welcome\` query parameter:
+
+  \`\`\`json
+  [
+    { "directive": "allow", "search": "*tour=welcome*" }
+  ]
+  \`\`\`
+
+  You can combine \`pathname\` and \`search\` in a single rule to match both. For example, to show the guide only on \`/dashboard\` when \`tab=overview\` is present:
+
+  \`\`\`json
+  [
+    { "directive": "allow", "pathname": "/dashboard", "search": "*tab=overview*" }
   ]
   \`\`\`
   `,
@@ -185,11 +202,17 @@ const createOrUpdateGuide = KnockTool({
       ),
     guideKey: z
       .string()
+      .min(3)
+      .max(255)
+      .regex(/^[a-zA-Z0-9_-]+$/)
+      .transform((val) => val.toLowerCase())
       .describe(
-        "(string): The key of the guide to upsert. Must be at minimum 3 characters and at maximum 255 characters in length. Must be in the format of ^[a-z0-9_-]+$."
+        "(string): The key of the guide to upsert. Must be at minimum 3 characters and at maximum 255 characters in length. Must be in the format of ^[a-zA-Z0-9_-]+$. Uppercase characters will be normalized to lowercase."
       ),
     name: z
       .string()
+      .min(1)
+      .max(255)
       .describe(
         "(string): A name for the guide. Must be at maximum 255 characters in length."
       ),
@@ -202,26 +225,24 @@ const createOrUpdateGuide = KnockTool({
       .default("knock-guide"),
     description: z
       .string()
+      .max(280)
       .optional()
       .describe(
         "(string): An arbitrary string attached to a guide object. Maximum of 280 characters allowed."
       ),
     step: z
       .object({
-        name: z
-          .string()
-          .describe("(string): The name of the step.")
-          .optional()
-          .default("Default"),
+        name: z.string().optional().describe("(string): The name of the step."),
         ref: z
           .string()
           .describe("(string): The unique identifier of the step.")
           .optional()
-          .default("default"),
+          .default("step_1"),
         schemaKey: z
           .string()
+          .min(1)
           .describe(
-            "(string): The key of the schema that the step's content conforms to."
+            "(string): The key of the message type to use for the step's content. Note, Knock provides out-of-the-box message types: `banner`, `card`, and `modal` in addition to any user created ones."
           ),
         schemaVariantKey: z
           .string()
@@ -239,26 +260,45 @@ const createOrUpdateGuide = KnockTool({
       .describe("(object): The guide step to upsert."),
     targetPropertyConditions: z
       .array(conditionSchema)
+      .optional()
       .describe(
-        "(array): A list of property conditions that describe the target audience for the guide. Conditions are joined as AND operations."
+        "(array): A list of target conditions to be met for the guide to be shown to a user. Conditions are joined as AND operations."
       ),
-    activationLocationRules: z
+    activationUrlPatterns: z
       .array(
-        z.object({
-          directive: z
-            .enum(["allow", "block"])
-            .describe(
-              "(string): The directive to apply to the activation location rule (allow or block)."
-            ),
-          pathname: z
-            .string()
-            .describe(
-              "(string): The pathname to target. Should correspond to a URI in your application."
-            ),
-        })
+        z
+          .object({
+            directive: z
+              .enum(["allow", "block"])
+              .describe(
+                "(string): The directive to apply to the activation URL rule (allow or block)."
+              ),
+            pathname: z
+              .string()
+              .min(1)
+              .optional()
+              .describe(
+                "(string): The URL pathname pattern to match against. Must be a valid URI path."
+              ),
+            search: z
+              .string()
+              .min(1)
+              .optional()
+              .describe(
+                "(string): The URL query string pattern to match against (without the leading '?'). Supports URLPattern API syntax."
+              ),
+          })
+          .refine(
+            (data) => data.pathname !== undefined || data.search !== undefined,
+            {
+              message:
+                "At least one of `pathname` or `search` must be provided.",
+            }
+          )
       )
+      .optional()
       .describe(
-        "(array): A list of activation location rules that describe where in your application the guide should be shown."
+        "(array): A list of activation URL rules that describe where in your application the guide should be shown."
       ),
   }),
   execute: (knockClient, config) => async (params) => {
@@ -269,38 +309,52 @@ const createOrUpdateGuide = KnockTool({
         environment: params.environment ?? config.environment ?? "development",
       }
     );
+    if (!messageType) {
+      throw new Error(`Message type ${params.step.schemaKey} not found`);
+    }
 
     // Ensure that the schema variant exists
     const schemaVariant = messageType.variants.find(
       (variant) => variant.key === params.step.schemaVariantKey
     );
-
     if (!schemaVariant) {
       throw new Error(
         `Schema variant ${params.step.schemaVariantKey} not found in message type ${messageType.key}`
       );
     }
 
+    // Build the guide data based on the provided params.
+    const guideData: KnockMgmt.GuideUpsertParams.Guide = {
+      name: params.name,
+      channel_key: params.channelKey,
+      steps: [
+        {
+          ref: params.step.ref,
+          schema_key: messageType.key,
+          schema_semver: messageType.semver,
+          schema_variant_key: schemaVariant.key,
+          values: params.step.schemaContent,
+        },
+      ],
+    };
+
+    if (params.description) {
+      guideData.description = params.description;
+    }
+
+    if (params.targetPropertyConditions) {
+      guideData.target_property_conditions = {
+        all: params.targetPropertyConditions,
+      };
+    }
+
+    if (params.activationUrlPatterns) {
+      guideData.activation_url_patterns = params.activationUrlPatterns;
+    }
+
     const result = await knockClient.guides.upsert(params.guideKey, {
       environment: params.environment ?? config.environment ?? "development",
-      guide: {
-        name: params.name,
-        description: params.description,
-        channel_key: params.channelKey ?? "knock-guide",
-        steps: [
-          {
-            ref: params.step.ref ?? "default",
-            schema_key: messageType.key,
-            schema_semver: messageType.semver,
-            schema_variant_key: schemaVariant.key,
-            values: params.step.schemaContent,
-          },
-        ],
-        target_property_conditions: {
-          all: params.targetPropertyConditions,
-        },
-        activation_location_rules: params.activationLocationRules,
-      },
+      guide: guideData,
     });
 
     return serializeGuide(result.guide);
