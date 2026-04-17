@@ -232,7 +232,7 @@ const createOrUpdateGuide = KnockTool({
       ),
     step: z
       .object({
-        name: z.string().describe("(string): The name of the step.").optional(),
+        name: z.string().optional().describe("(string): The name of the step."),
         ref: z
           .string()
           .describe("(string): The unique identifier of the step.")
