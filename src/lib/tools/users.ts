@@ -129,9 +129,7 @@ const getUserPreferences = KnockTool({
 
     return await publicClient.users.getPreferences(
       params.userId ?? config.userId,
-      {
-        preferenceSet: params.preferenceSetId ?? "default",
-      }
+      params.preferenceSetId ?? "default"
     );
   },
 });
@@ -206,9 +204,7 @@ const setUserPreferences = KnockTool({
 
     const existingPreferences = await publicClient.users.getPreferences(
       params.userId ?? config.userId,
-      {
-        preferenceSet: "default",
-      }
+      "default"
     );
 
     const updatedPreferences = {
@@ -229,6 +225,7 @@ const setUserPreferences = KnockTool({
 
     return await publicClient.users.setPreferences(
       params.userId ?? config.userId,
+      "default",
       updatedPreferences
     );
   },
