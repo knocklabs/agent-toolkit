@@ -1,0 +1,4 @@
+{
+  "name": "@knocklabs/agent-toolkit",
+  "install": "npm ci"
+}
