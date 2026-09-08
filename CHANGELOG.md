@@ -1,5 +1,11 @@
 # @knocklabs/agent-toolkit
 
+## 0.5.8
+
+### Patch Changes
+
+- 4c746c8: fix: omit environment from Management and public API requests unless explicitly supplied by a tool or toolkit configuration
+
 ## 0.5.7
 
 ### Patch Changes
