@@ -24,14 +24,12 @@ const listWorkflows = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to list workflows for. Defaults to `development`."
-      ),
+      .describe("(string): The environment to list workflows for."),
   }),
   execute: (knockClient, config) => async (params) => {
     const allWorkflows: SerializedWorkflow[] = [];
     const listParams = {
-      environment: params.environment ?? config.environment ?? "development",
+      environment: params.environment ?? config.environment,
     };
 
     for await (const workflow of knockClient.workflows.list(listParams)) {
@@ -52,16 +50,14 @@ const getWorkflow = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to get the workflow for. Defaults to `development`."
-      ),
+      .describe("(string): The environment to get the workflow for."),
     workflowKey: z
       .string()
       .describe("(string): The key of the workflow to get."),
   }),
   execute: (knockClient, config) => async (params) => {
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
-      environment: params.environment ?? config.environment ?? "development",
+      environment: params.environment ?? config.environment,
     });
 
     return serializeFullWorkflowResponse(workflow);
@@ -84,9 +80,7 @@ const triggerWorkflow = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to trigger the workflow in. Defaults to `development`."
-      ),
+      .describe("(string): The environment to trigger the workflow in."),
     workflowKey: z
       .string()
       .describe("(string): The key of the workflow to trigger."),
@@ -130,9 +124,7 @@ const createWorkflow = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to create the workflow in. Defaults to `development`."
-      ),
+      .describe("(string): The environment to create the workflow in."),
     workflowKey: z
       .string()
       .describe(
@@ -148,7 +140,7 @@ const createWorkflow = KnockTool({
   }),
   execute: (knockClient, config) => async (params) => {
     const result = await knockClient.workflows.upsert(params.workflowKey, {
-      environment: config.environment ?? "development",
+      environment: params.environment ?? config.environment,
       workflow: {
         name: params.name,
         description: params.description,
@@ -179,9 +171,7 @@ const createOneOffWorkflowSchedule = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to create the workflow in. Defaults to `development`."
-      ),
+      .describe("(string): The environment to create the workflow in."),
     workflowKey: z
       .string()
       .describe("(string): The key of the workflow to schedule."),

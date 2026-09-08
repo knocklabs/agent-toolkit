@@ -81,7 +81,7 @@ async function createWorkflowTools(
   const workflows: Workflow[] = [];
 
   for await (const workflow of knockClient.workflows.list({
-    environment: config.environment ?? "development",
+    environment: config.environment,
   })) {
     // If we have a list of workflow keys to include, and the current workflow is not in the list, skip it
     if (

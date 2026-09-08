@@ -4,7 +4,10 @@ import { Knock } from "@knocklabs/node";
 import pkg from "../../package.json";
 import { Config } from "../types.js";
 
-const serviceTokensToApiClients: Record<string, Record<string, Knock>> = {};
+const serviceTokensToApiClients = new Map<
+  string,
+  Map<string | undefined, Knock>
+>();
 
 type KnockClient = ReturnType<typeof createKnockClient>;
 
@@ -29,16 +32,22 @@ const createKnockClient = (config: Config) => {
 
   return Object.assign(client, {
     publicApi: async (environmentSlug?: string): Promise<Knock> => {
-      const environment =
-        environmentSlug ?? config.environment ?? "development";
+      const environment = environmentSlug ?? config.environment;
+      const apiClients =
+        serviceTokensToApiClients.get(serviceToken) ??
+        new Map<string | undefined, Knock>();
 
       // If the client already exists for this service token and environment, return it
-      if (serviceTokensToApiClients?.[serviceToken]?.[environment]) {
-        return serviceTokensToApiClients[serviceToken][environment];
+      const cachedClient = apiClients.get(environment);
+      if (cachedClient) {
+        return cachedClient;
       }
 
       // Otherwise, fetch a public API key for this service token and environment
-      const { api_key } = await client.apiKeys.exchange({ environment });
+      const { api_key } =
+        environment === undefined
+          ? await client.apiKeys.exchange()
+          : await client.apiKeys.exchange({ environment });
 
       // Create a new Knock client with the public API key
       const knock = new Knock({
@@ -47,11 +56,8 @@ const createKnockClient = (config: Config) => {
       });
 
       // Store the client in the cache
-      if (!serviceTokensToApiClients[serviceToken]) {
-        serviceTokensToApiClients[serviceToken] = {};
-      }
-
-      serviceTokensToApiClients[serviceToken][environment] = knock;
+      apiClients.set(environment, knock);
+      serviceTokensToApiClients.set(serviceToken, apiClients);
 
       return knock;
     },

@@ -12,9 +12,7 @@ const getMessage = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to retrieve the message from. Defaults to `development`."
-      ),
+      .describe("(string): The environment to retrieve the message from."),
     messageId: z
       .string()
       .describe("(string): The ID of the message to retrieve."),
@@ -35,9 +33,7 @@ const getMessageContent = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to retrieve the message from. Defaults to `development`."
-      ),
+      .describe("(string): The environment to retrieve the message from."),
     messageId: z
       .string()
       .describe("(string): The messageId of the message to retrieve."),
@@ -59,7 +55,7 @@ const getMessageDeliveryLogs = KnockTool({
       .string()
       .optional()
       .describe(
-        "(string): The environment to retrieve the delivery logs from. Defaults to `development`."
+        "(string): The environment to retrieve the delivery logs from."
       ),
     messageId: z
       .string()
@@ -84,7 +80,7 @@ const getMessageEvents = KnockTool({
       .string()
       .optional()
       .describe(
-        "(string): The environment to retrieve the message events from. Defaults to `development`."
+        "(string): The environment to retrieve the message events from."
       ),
     messageId: z
       .string()

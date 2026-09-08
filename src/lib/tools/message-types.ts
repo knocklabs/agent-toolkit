@@ -27,19 +27,26 @@ const listMessageTypes = KnockTool({
   method: "list_message_types",
   name: "List message types",
   description:
-    "List all message types available for the environment. Each message type returns the schema, which includes information about the variants and the fields available per-variant. Use this tool when you need to understand the different message types that are available for the environment for use in Guides.",
+    "List the account-wide message type catalog shared by root environments. Each message type includes its variants and available fields. Optionally provide an environment for explicit root context or a branch for Development branch context. Use this tool when you need to understand the message types available for Guides.",
   parameters: z.object({
     environment: z
       .string()
       .optional()
       .describe(
-        "(string): The environment to list message types for. Defaults to `development`."
+        "(string): Optional root environment context. Omit this to use the account default."
+      ),
+    branch: z
+      .string()
+      .optional()
+      .describe(
+        '(string): Optional Development branch context. If environment is also supplied, it must be "development".'
       ),
   }),
   execute: (knockClient, config) => async (params) => {
     const allMessageTypes: SerializedMessageType[] = [];
     for await (const messageType of knockClient.messageTypes.list({
-      environment: params.environment ?? config.environment ?? "development",
+      environment: params.environment ?? config.environment,
+      branch: params.branch,
     })) {
       allMessageTypes.push(serializeMessageTypeResponse(messageType));
     }
@@ -51,7 +58,7 @@ const createOrUpdateMessageType = KnockTool({
   method: "upsert_message_type",
   name: "Create or update message type",
   description: `
-  Create or update a message type. A message type is a schema that defines fields available to an editor within Knock. Message types always have at least one variant, that MUST be named "default". Use this tool when you need to create a new message type, or update an existing message type.
+  Create or update a message type in the account-wide catalog shared by root environments. A message type is a schema that defines fields available to an editor within Knock. Message types always have at least one variant, that MUST be named "default". Optionally provide an environment for explicit root context or a branch for Development branch context. Use this tool when you need to create a new message type, or update an existing message type.
 
   ## Schema and fields
 
@@ -99,7 +106,13 @@ const createOrUpdateMessageType = KnockTool({
       .string()
       .optional()
       .describe(
-        "(string): The environment to create or update the message type in. Defaults to `development`."
+        "(string): Optional root environment context. Omit this to use the account default."
+      ),
+    branch: z
+      .string()
+      .optional()
+      .describe(
+        '(string): Optional Development branch context. If environment is also supplied, it must be "development".'
       ),
     messageTypeKey: z
       .string()
@@ -153,7 +166,8 @@ const createOrUpdateMessageType = KnockTool({
         description: params.description ?? "",
         preview: params.preview ?? "<div></div>",
       },
-      environment: params.environment ?? config.environment ?? "development",
+      environment: params.environment ?? config.environment,
+      branch: params.branch,
     });
   },
 });

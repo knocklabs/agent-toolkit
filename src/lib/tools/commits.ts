@@ -12,9 +12,7 @@ const listCommits = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to list commits for. Defaults to `development`."
-      ),
+      .describe("(string): The environment to list commits for."),
     promoted: z
       .boolean()
       .describe(
@@ -23,7 +21,7 @@ const listCommits = KnockTool({
   }),
   execute: (knockClient, config) => async (params) => {
     return await knockClient.commits.list({
-      environment: params.environment ?? config.environment ?? "development",
+      environment: params.environment ?? config.environment,
       promoted: params.promoted ?? false,
     });
   },
@@ -39,9 +37,7 @@ const commitAllChanges = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to commit all changes to. Defaults to `development`."
-      ),
+      .describe("(string): The environment to commit all changes to."),
     message: z
       .string()
       .optional()
@@ -49,7 +45,7 @@ const commitAllChanges = KnockTool({
   }),
   execute: (knockClient, config) => async (params) => {
     return await knockClient.commits.commitAll({
-      environment: params.environment ?? config.environment ?? "development",
+      environment: params.environment ?? config.environment,
       commit_message: params.message,
     });
   },

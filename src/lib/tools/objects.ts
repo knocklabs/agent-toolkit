@@ -11,9 +11,7 @@ const listObjects = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to list objects from. Defaults to `development`."
-      ),
+      .describe("(string): The environment to list objects from."),
     collection: z
       .string()
       .describe("(string): The collection to list objects from."),
@@ -33,9 +31,7 @@ const getObject = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to get the object from. Defaults to `development`."
-      ),
+      .describe("(string): The environment to get the object from."),
     collection: z
       .string()
       .describe("(string): The collection to get the object from."),
@@ -57,9 +53,7 @@ const createOrUpdateObject = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to create or update the object in. Defaults to `development`."
-      ),
+      .describe("(string): The environment to create or update the object in."),
     collection: z
       .string()
       .describe("(string): The collection to create or update the object in."),
@@ -95,9 +89,7 @@ const subscribeUsersToObject = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to subscribe the user to. Defaults to `development`."
-      ),
+      .describe("(string): The environment to subscribe the user to."),
     collection: z
       .string()
       .describe("(string): The collection to subscribe the user to."),
@@ -132,9 +124,7 @@ const unsubscribeUsersFromObject = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to unsubscribe the user from. Defaults to `development`."
-      ),
+      .describe("(string): The environment to unsubscribe the user from."),
     collection: z
       .string()
       .describe("(string): The collection to unsubscribe the user from."),
