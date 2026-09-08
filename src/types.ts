@@ -18,8 +18,8 @@ export interface Config {
   tenantId?: string | undefined;
 
   /**
-   * The environment to use as the basis for the API calls. When not defined, will default to
-   * the `development` environment.
+   * An optional environment override for API calls. When omitted, requests do not
+   * specify an environment and Knock uses the account default.
    */
   environment?: string | undefined;
 

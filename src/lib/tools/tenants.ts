@@ -14,9 +14,7 @@ const getTenant = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to retrieve the tenant from. Defaults to `development`."
-      ),
+      .describe("(string): The environment to retrieve the tenant from."),
     tenantId: z
       .string()
       .describe("(string): The ID of the tenant to retrieve."),
@@ -39,9 +37,7 @@ const listTenants = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to retrieve the tenants from. Defaults to `development`."
-      ),
+      .describe("(string): The environment to retrieve the tenants from."),
   }),
   execute: (knockClient) => async (params) => {
     const publicClient = await knockClient.publicApi(params.environment);
@@ -61,9 +57,7 @@ const createOrUpdateTenant = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to set the tenant in. Defaults to `development`."
-      ),
+      .describe("(string): The environment to set the tenant in."),
     tenantId: z.string().describe("(string): The ID of the tenant to update."),
     name: z.string().optional().describe("(string): The name of the tenant."),
     properties: z

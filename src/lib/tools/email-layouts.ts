@@ -32,16 +32,14 @@ const getEmailLayout = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to retrieve the email layout from. Defaults to `development`."
-      ),
+      .describe("(string): The environment to retrieve the email layout from."),
     key: z
       .string()
       .describe("(string): The key of the email layout to retrieve."),
   }),
   execute: (knockClient, config) => async (params) => {
     const response = await knockClient.emailLayouts.retrieve(params.key, {
-      environment: params.environment ?? config.environment ?? "development",
+      environment: params.environment ?? config.environment,
     });
 
     return serializeEmailLayoutResponse(response.email_layout);
@@ -58,14 +56,12 @@ const listEmailLayouts = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to list email layouts for. Defaults to `development`."
-      ),
+      .describe("(string): The environment to list email layouts for."),
   }),
   execute: (knockClient, config) => async (params) => {
     const allEmailLayouts: SerializedEmailLayout[] = [];
     for await (const emailLayout of knockClient.emailLayouts.list({
-      environment: params.environment ?? config.environment ?? "development",
+      environment: params.environment ?? config.environment,
     })) {
       allEmailLayouts.push(serializeEmailLayoutResponse(emailLayout));
     }
@@ -89,7 +85,7 @@ const createOrUpdateEmailLayout = KnockTool({
       .string()
       .optional()
       .describe(
-        "(string): The environment to create or update the email layout for. Defaults to `development`."
+        "(string): The environment to create or update the email layout for."
       ),
     key: z
       .string()
@@ -104,7 +100,7 @@ const createOrUpdateEmailLayout = KnockTool({
   }),
   execute: (knockClient, config) => async (params) => {
     const response = await knockClient.emailLayouts.upsert(params.key, {
-      environment: params.environment ?? config.environment ?? "development",
+      environment: params.environment ?? config.environment,
       email_layout: {
         name: params.name,
         html_layout: params.htmlContent,

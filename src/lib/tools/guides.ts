@@ -51,9 +51,7 @@ const listGuides = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to list guides for. Defaults to `development`."
-      ),
+      .describe("(string): The environment to list guides for."),
     page_size: z
       .number()
       .optional()
@@ -66,7 +64,7 @@ const listGuides = KnockTool({
   execute: (knockClient, config) => async (params) => {
     const allGuides: SerializedGuide[] = [];
     const listParams = {
-      environment: params.environment ?? config.environment ?? "development",
+      environment: params.environment ?? config.environment,
       page_size: params.page_size,
       after: params.after,
     };
@@ -89,9 +87,7 @@ const getGuide = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to get the guide for. Defaults to `development`."
-      ),
+      .describe("(string): The environment to get the guide for."),
     guideKey: z.string().describe("(string): The key of the guide to get."),
     hide_uncommitted_changes: z
       .boolean()
@@ -102,7 +98,7 @@ const getGuide = KnockTool({
   }),
   execute: (knockClient, config) => async (params) => {
     const guide = await knockClient.guides.retrieve(params.guideKey, {
-      environment: params.environment ?? config.environment ?? "development",
+      environment: params.environment ?? config.environment,
       hide_uncommitted_changes: params.hide_uncommitted_changes,
     });
     return serializeGuide(guide);
@@ -197,9 +193,7 @@ const createOrUpdateGuide = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to upsert the guide for. Defaults to `development`."
-      ),
+      .describe("(string): The environment to upsert the guide for."),
     guideKey: z
       .string()
       .min(3)
@@ -306,7 +300,7 @@ const createOrUpdateGuide = KnockTool({
     const messageType = await knockClient.messageTypes.retrieve(
       params.step.schemaKey,
       {
-        environment: params.environment ?? config.environment ?? "development",
+        environment: params.environment ?? config.environment,
       }
     );
     if (!messageType) {
@@ -353,7 +347,7 @@ const createOrUpdateGuide = KnockTool({
     }
 
     const result = await knockClient.guides.upsert(params.guideKey, {
-      environment: params.environment ?? config.environment ?? "development",
+      environment: params.environment ?? config.environment,
       guide: guideData,
     });
 

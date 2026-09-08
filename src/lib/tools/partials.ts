@@ -1,7 +1,7 @@
 import { Partial } from "@knocklabs/mgmt/resources/partials.js";
 import { z } from "zod";
 
-import { KnockTool } from "@/lib/knock-tool.js";
+import { KnockTool } from "../knock-tool.js";
 
 /**
  * A slimmed down version of the Partial resource that is easier to work with in the LLM.
@@ -32,14 +32,12 @@ const listPartials = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to list partials for. Defaults to `development`."
-      ),
+      .describe("(string): The environment to list partials for."),
   }),
   execute: (knockClient, config) => async (params) => {
     const allPartials: SerializedPartial[] = [];
     for await (const partial of knockClient.partials.list({
-      environment: params.environment ?? config.environment ?? "development",
+      environment: params.environment ?? config.environment,
     })) {
       allPartials.push(serializePartial(partial));
     }
@@ -57,14 +55,12 @@ const getPartial = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to get the partial for. Defaults to `development`."
-      ),
+      .describe("(string): The environment to get the partial for."),
     key: z.string().describe("(string): The key of the partial to get."),
   }),
   execute: (knockClient, config) => async (params) => {
     const partial = await knockClient.partials.retrieve(params.key, {
-      environment: params.environment ?? config.environment ?? "development",
+      environment: params.environment ?? config.environment,
     });
 
     return serializePartial(partial);
@@ -96,9 +92,7 @@ const createOrUpdatePartial = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to upsert the partial for. Defaults to `development`."
-      ),
+      .describe("(string): The environment to upsert the partial for."),
     key: z.string().describe("(string): The key of the partial to upsert."),
     name: z.string().describe("(string): The name of the partial."),
     description: z
@@ -112,7 +106,7 @@ const createOrUpdatePartial = KnockTool({
   }),
   execute: (knockClient, config) => async (params) => {
     const partial = await knockClient.partials.upsert(params.key, {
-      environment: params.environment ?? config.environment ?? "development",
+      environment: params.environment ?? config.environment,
       partial: {
         name: params.name,
         description: params.description,

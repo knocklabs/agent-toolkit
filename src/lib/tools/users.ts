@@ -22,9 +22,7 @@ const getUser = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to retrieve the user from. Defaults to `development`."
-      ),
+      .describe("(string): The environment to retrieve the user from."),
     userId: z
       .string()
       .optional()
@@ -53,9 +51,7 @@ const createOrUpdateUser = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to create or update the user in. Defaults to `development`."
-      ),
+      .describe("(string): The environment to create or update the user in."),
     userId: z
       .string()
       .optional()
@@ -109,7 +105,7 @@ const getUserPreferences = KnockTool({
       .string()
       .optional()
       .describe(
-        "(string): The environment to retrieve the user preferences from. Defaults to `development`."
+        "(string): The environment to retrieve the user preferences from."
       ),
     userId: z
       .string()
@@ -175,9 +171,7 @@ const setUserPreferences = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to set the user preferences in. Defaults to `development`."
-      ),
+      .describe("(string): The environment to set the user preferences in."),
     userId: z
       .string()
       .optional()
@@ -247,7 +241,7 @@ const getUserMessages = KnockTool({
       .string()
       .optional()
       .describe(
-        "(string): The environment to retrieve the user messages from. Defaults to `development`."
+        "(string): The environment to retrieve the user messages from."
       ),
     userId: z
       .string()

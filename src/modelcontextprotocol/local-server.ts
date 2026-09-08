@@ -51,7 +51,7 @@ const main = async () => {
     .option("environment", {
       alias: "e",
       type: "string",
-      description: `The environment to operate in from your Knock account`,
+      description: `Optional environment override. When omitted, requests use your Knock account's default environment.`,
     })
     .option("user-id", {
       type: "string",
@@ -75,7 +75,7 @@ const main = async () => {
     serviceToken: SERVICE_TOKEN,
     userId,
     tenantId,
-    environment,
+    ...(environment === undefined ? {} : { environment }),
   };
 
   const knockClient = createKnockClient(config);

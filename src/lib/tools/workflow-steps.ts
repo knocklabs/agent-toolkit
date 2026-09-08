@@ -24,7 +24,7 @@ async function updateWorkflowWithStep(
   knockClient: KnockClient,
   workflow: Workflow,
   step: WorkflowStep,
-  environment: string
+  environment?: string
 ) {
   let workflowSteps = workflow.steps;
   const existingStepIdx = workflow.steps.findIndex((s) => s.ref === step.ref);
@@ -293,9 +293,7 @@ const createOrUpdateEmailStepInWorkflow = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to operate in. Defaults to `development`."
-      ),
+      .describe("(string): The environment to operate in."),
     htmlContent: z
       .string()
       .optional()
@@ -314,8 +312,7 @@ const createOrUpdateEmailStepInWorkflow = KnockTool({
     subject: z.string().describe("(string): The subject of the email step."),
   }),
   execute: (knockClient, config) => async (params) => {
-    const environment =
-      params.environment ?? config.environment ?? "development";
+    const environment = params.environment ?? config.environment;
 
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
       environment,
@@ -392,14 +389,11 @@ const createOrUpdateSmsStepInWorkflow = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to operate in. Defaults to `development`."
-      ),
+      .describe("(string): The environment to operate in."),
     content: z.string().describe("(string): The content of the SMS."),
   }),
   execute: (knockClient, config) => async (params) => {
-    const environment =
-      params.environment ?? config.environment ?? "development";
+    const environment = params.environment ?? config.environment;
 
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
       environment,
@@ -462,17 +456,14 @@ const createOrUpdatePushStepInWorkflow = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to operate in. Defaults to `development`."
-      ),
+      .describe("(string): The environment to operate in."),
     title: z.string().describe("(string): The title of the push notification."),
     content: z
       .string()
       .describe("(string): The content (body) of the push notification."),
   }),
   execute: (knockClient, config) => async (params) => {
-    const environment =
-      params.environment ?? config.environment ?? "development";
+    const environment = params.environment ?? config.environment;
 
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
       environment,
@@ -538,9 +529,7 @@ const createOrUpdateInAppFeedStepInWorkflow = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to operate in. Defaults to `development`."
-      ),
+      .describe("(string): The environment to operate in."),
     actionUrl: z
       .string()
       .describe(
@@ -551,8 +540,7 @@ const createOrUpdateInAppFeedStepInWorkflow = KnockTool({
       .describe("(string): The markdown content of the in app feed."),
   }),
   execute: (knockClient, config) => async (params) => {
-    const environment =
-      params.environment ?? config.environment ?? "development";
+    const environment = params.environment ?? config.environment;
 
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
       environment,
@@ -613,16 +601,13 @@ const createOrUpdateChatStepInWorkflow = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to operate in. Defaults to `development`."
-      ),
+      .describe("(string): The environment to operate in."),
     body: z
       .string()
       .describe("(string): The markdown content of the notification."),
   }),
   execute: (knockClient, config) => async (params) => {
-    const environment =
-      params.environment ?? config.environment ?? "development";
+    const environment = params.environment ?? config.environment;
 
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
       environment,
@@ -684,17 +669,14 @@ const createOrUpdateDelayStepInWorkflow = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to operate in. Defaults to `development`."
-      ),
+      .describe("(string): The environment to operate in."),
     delayValue: z.number().describe("(number): The value of the delay."),
     delayUnit: z
       .enum(["seconds", "minutes", "hours", "days"])
       .describe("(enum): The unit of the delay."),
   }),
   execute: (knockClient, config) => async (params) => {
-    const environment =
-      params.environment ?? config.environment ?? "development";
+    const environment = params.environment ?? config.environment;
 
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
       environment,
@@ -763,9 +745,7 @@ const createOrUpdateBatchStepInWorkflow = KnockTool({
     environment: z
       .string()
       .optional()
-      .describe(
-        "(string): The environment to operate in. Defaults to `development`."
-      ),
+      .describe("(string): The environment to operate in."),
     batchWindow: z.object({
       value: z.number().describe("(number): The value of the batch window."),
       unit: z
@@ -774,8 +754,7 @@ const createOrUpdateBatchStepInWorkflow = KnockTool({
     }),
   }),
   execute: (knockClient, config) => async (params) => {
-    const environment =
-      params.environment ?? config.environment ?? "development";
+    const environment = params.environment ?? config.environment;
 
     const workflow = await knockClient.workflows.retrieve(params.workflowKey, {
       environment,
