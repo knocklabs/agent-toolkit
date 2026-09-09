@@ -2,6 +2,10 @@
   "name": "@knocklabs/agent-toolkit",
   "version": "0.5.8",
   "description": "A toolkit for working with Knock in Agent workflows.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/knocklabs/agent-toolkit.git"
+  },
   "main": "./dist/modelcontextprotocol/index.js",
   "types": "./dist/modelcontextprotocol/index.d.ts",
   "scripts": {
