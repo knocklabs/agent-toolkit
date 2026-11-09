@@ -8,37 +8,47 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
-  id-token: write
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    # npm's trusted publisher config does not check the branch, so publishing is
+    # gated on this environment instead. Its deployment branch policy allows only
+    # main, and the npm trusted publisher requires the same environment name.
+    environment: production-release
+    # changesets/action opens the Version PR and pushes release tags with
+    # GITHUB_TOKEN.
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write # npm authenticates through OIDC and signs provenance
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
           fetch-depth: 0
+          # changesets/action writes its own git credentials for its pushes.
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: 24.x
-          registry-url: "https://registry.npmjs.org"
           package-manager-cache: false
-
-      - name: Upgrade npm for trusted publishing
-        run: npm install --global npm@11
 
       - name: Install Dependencies
         run: npm ci
 
+      # Publishing authenticates through npm trusted publishing, so no npm token
+      # is configured; npm falls back to a configured token when the OIDC
+      # exchange fails, which hides the real error. Node 24 ships npm 11, which
+      # trusted publishing needs.
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1.8.0
         with:
           commit: "chore: version packages"
           title: "chore: version packages"

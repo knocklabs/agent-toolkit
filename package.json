@@ -4,7 +4,7 @@
   "description": "A toolkit for working with Knock in Agent workflows.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/knocklabs/agent-toolkit.git"
+    "url": "git+https://github.com/knocklabs/agent-toolkit.git"
   },
   "main": "./dist/modelcontextprotocol/index.js",
   "types": "./dist/modelcontextprotocol/index.d.ts",
@@ -18,8 +18,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
     "test": "vitest run",
     "test:watch": "vitest",
-    "release": "npm run build && npm run release:publish && changeset tag",
-    "release:publish": "npm publish --access public --tolerate-republish"
+    "release": "npm run build && changeset publish"
   },
   "author": "Knock",
   "license": "MIT",
