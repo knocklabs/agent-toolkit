@@ -36,7 +36,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
-          node-version: 24.x
+          node-version: 26.13.0
           package-manager-cache: false
 
       - name: Install Dependencies
@@ -44,7 +44,7 @@ jobs:
 
       # Publishing authenticates through npm trusted publishing, so no npm token
       # is configured; npm falls back to a configured token when the OIDC
-      # exchange fails, which hides the real error. Node 24 ships npm 11, which
+      # exchange fails, which hides the real error. Node 26 ships npm 11, which
       # trusted publishing needs.
       - name: Create Release Pull Request or Publish to npm
         id: changesets
